@@ -128,7 +128,7 @@ svg {
   position: absolute;
   overflow: hidden;
   background: #111;
-  box-shadow: 0 0 0 1px rgba(237, 228, 211, 0.16);
+  box-shadow: 0 0 0 1.5px rgba(237, 228, 211, 0.22);
   background: #141414;
   transition: box-shadow 140ms ease;
 }
@@ -209,7 +209,7 @@ svg {
   overflow: hidden;
 }
 .gbox.is-lined {
-  outline: 1px solid rgba(237, 228, 211, 0.55);
+  outline: 1.5px solid rgba(237, 228, 211, 0.62);
   outline-offset: -1px;
 }
 .gbox.is-lined::after {
@@ -302,7 +302,7 @@ svg {
 .ring {
   fill: none;
   stroke: rgba(143, 227, 220, 0.3);
-  stroke-width: 1;
+  stroke-width: 1.6;
 }
 
 .cursor-rig {
@@ -316,7 +316,7 @@ svg {
 }
 .cursor-rig line {
   stroke: rgba(143, 227, 220, 0.6);
-  stroke-width: 1;
+  stroke-width: 1.6;
   vector-effect: non-scaling-stroke;
 }
 .cursor-rig line.is-hot {
@@ -344,16 +344,16 @@ svg {
   background: var(--chlorine);
 }
 .cross__x {
-  left: -14px;
+  left: -16px;
   top: 0;
-  width: 28px;
-  height: 1px;
+  width: 32px;
+  height: 1.5px;
 }
 .cross__y {
-  top: -14px;
+  top: -16px;
   left: 0;
-  width: 1px;
-  height: 28px;
+  width: 1.5px;
+  height: 32px;
 }
 .cross__dot {
   position: absolute;
@@ -477,7 +477,7 @@ svg {
 .map__view {
   fill: rgba(47, 91, 255, 0.16);
   stroke: var(--ember);
-  stroke-width: 1.5;
+  stroke-width: 2;
   vector-effect: non-scaling-stroke;
 }
 .map__hint {

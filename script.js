@@ -359,7 +359,7 @@
     outline.setAttribute("class", "neg-outline");
     outline.setAttribute("fill", "none");
     outline.setAttribute("stroke", "rgba(237,228,211,.85)");
-    outline.setAttribute("stroke-width", "1");
+    outline.setAttribute("stroke-width", "2");
     outline.setAttribute("vector-effect", "non-scaling-stroke");
     svg.append(outline);
     it._fig.appendChild(svg);
