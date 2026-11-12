@@ -162,21 +162,22 @@ svg {
 .piece.is-hot {
   z-index: 7;
 }
-.neg {
+.neg-svg {
   position: absolute;
   inset: 0;
   z-index: 4;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
   pointer-events: none;
-  filter: invert(1) hue-rotate(180deg) saturate(1.25) contrast(1.05)
-    drop-shadow(0 0 1px rgba(237, 228, 211, 0.6))
-    drop-shadow(0 0 8px rgba(47, 91, 255, 0.25));
+  opacity: 0;
   transition: opacity 100ms linear;
 }
-.piece.is-hot .neg {
-  opacity: 0.95;
+.piece.is-hot .neg-svg {
+  opacity: 1;
+}
+.neg-outline {
+  filter: drop-shadow(0 0 3px rgba(47, 91, 255, 0.65));
 }
 .glitch {
   position: absolute;
@@ -727,7 +728,7 @@ svg {
   .glitch {
     display: none;
   }
-  .neg {
+  .neg-svg {
     display: none;
   }
 }

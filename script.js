@@ -221,11 +221,7 @@
       const glitch = document.createElement("span");
       glitch.className = "glitch";
       fig.appendChild(glitch);
-      const neg = document.createElement("span");
-      neg.className = "neg";
-      neg.style.backgroundImage = `url(assets/img/${it.src}.jpg)`;
-      neg.style.backgroundPosition = it.pos || "50% 50%";
-      fig.appendChild(neg);
+
       world.appendChild(fig);
 
       const unit = make("g", {
@@ -359,6 +355,48 @@
           box.appendChild(img);
           glitch.appendChild(box);
         });
+      }
+
+      if (!it._neg) {
+        const idx = n.i;
+        const svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("class", "neg-svg");
+        svg.setAttribute("viewBox", `0 0 ${it.w} ${it.h}`);
+        svg.setAttribute("preserveAspectRatio", "none");
+        const defs = document.createElementNS(NS, "defs");
+        const clip = document.createElementNS(NS, "clipPath");
+        clip.setAttribute("id", `negclip-${idx}`);
+        const clipShape = document.createElementNS(NS, "path");
+        clip.append(clipShape);
+        const flt = document.createElementNS(NS, "filter");
+        flt.setAttribute("id", `neginv-${idx}`);
+        flt.append(
+          make("feColorMatrix", {
+            type: "matrix",
+            values: "-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0",
+          })
+        );
+        defs.append(clip, flt);
+        svg.append(defs);
+        const image = document.createElementNS(NS, "image");
+        image.setAttribute("x", "0");
+        image.setAttribute("y", "0");
+        image.setAttribute("width", it.w);
+        image.setAttribute("height", it.h);
+        image.setAttribute("preserveAspectRatio", "xMidYMid slice");
+        image.setAttribute("href", `assets/img/${it.src}.jpg`);
+        image.setAttribute("clip-path", `url(#negclip-${idx})`);
+        image.setAttribute("filter", `url(#neginv-${idx})`);
+        svg.append(image);
+        const outline = document.createElementNS(NS, "path");
+        outline.setAttribute("class", "neg-outline");
+        outline.setAttribute("fill", "none");
+        outline.setAttribute("stroke", "rgba(237,228,211,.85)");
+        outline.setAttribute("stroke-width", "1");
+        outline.setAttribute("vector-effect", "non-scaling-stroke");
+        svg.append(outline);
+        it._fig.appendChild(svg);
+        it._neg = { clipShape, outline };
       }
     });
   };
@@ -496,22 +534,38 @@
         blob.y += (ly - blob.y) * 0.22;
         const tt = now / 1000;
         const R = Math.min(it.w, it.h) * 0.36;
-        const N = 26;
+        const N = 20;
         const pts = [];
         for (let k = 0; k < N; k++) {
           const a = (k / N) * Math.PI * 2;
           const r =
             R *
-            (0.82 +
-              0.16 * Math.sin(a * 3 + tt * 1.35) +
-              0.11 * Math.sin(a * 5 - tt * 1.1) +
-              0.07 * Math.sin(a * 7 + tt * 0.8));
-          pts.push(
-            `${(blob.x + Math.cos(a) * r).toFixed(1)}px ${(blob.y + Math.sin(a) * r).toFixed(1)}px`
-          );
+            (1 +
+              0.12 * Math.sin(a * 3 + tt * 1.35) +
+              0.08 * Math.sin(a * 5 - tt * 1.1) +
+              0.04 * Math.sin(a * 7 + tt * 0.8));
+          pts.push({
+            x: blob.x + Math.cos(a) * r,
+            y: blob.y + Math.sin(a) * r,
+          });
         }
-        const neg = it._fig.querySelector(".neg");
-        if (neg) neg.style.clipPath = `polygon(${pts.join(",")})`;
+        let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+        for (let k = 0; k < N; k++) {
+          const p0 = pts[(k - 1 + N) % N];
+          const p1 = pts[k];
+          const p2 = pts[(k + 1) % N];
+          const p3 = pts[(k + 2) % N];
+          const c1x = p1.x + (p2.x - p0.x) / 6;
+          const c1y = p1.y + (p2.y - p0.y) / 6;
+          const c2x = p2.x - (p3.x - p1.x) / 6;
+          const c2y = p2.y - (p3.y - p1.y) / 6;
+          d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+        }
+        d += " Z";
+        if (it._neg) {
+          it._neg.clipShape.setAttribute("d", d);
+          it._neg.outline.setAttribute("d", d);
+        }
         it._fig.classList.add("is-hot");
       } else {
         blob.on = false;
