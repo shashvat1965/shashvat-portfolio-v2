@@ -2,9 +2,9 @@
 
 (() => {
   const NS = "http://www.w3.org/2000/svg";
-  const MAP_H = 92;
-  const WORLD_W = 2576;
-  const WORLD_H = 2366;
+  const MAP_H = 99;
+  const WORLD_W = 2463;
+  const WORLD_H = 2428;
 
   const rawItems = [
     { src: "pin-01", label: "pinterest feed / 01", alt: "green tree swirling into a spiral", x: 40, y: 60, w: 280, h: 380, r: -2 },
@@ -68,9 +68,10 @@
   const items = pattern.map((t) => queues[t].shift()).filter(Boolean);
 
   const COLS = 7;
-  const CELL_W = 360;
-  const CELL_H = 330;
-  const MARGIN = 28;
+  const CELL_W = 345;
+  const CELL_H = 340;
+  const MARGIN = 24;
+  const SCALE = 1.22;
   let col = 0;
   let row = 0;
   items.forEach((it, i) => {
@@ -90,6 +91,8 @@
       ];
       [it.w, it.h] = variants[i % variants.length];
     }
+    it.w = Math.round(it.w * SCALE);
+    it.h = Math.round(it.h * SCALE);
     const jx = ((i * 37) % 25) - 12;
     const jy = ((i * 53) % 23) - 11;
     it.x = MARGIN + col * CELL_W + (CELL_W - it.w) / 2 + jx;
@@ -282,6 +285,8 @@
       unit.append(full);
       unit.append(
         make("rect", { class: "frame", x: -it.w / 2, y: -it.h / 2, width: it.w, height: it.h }),
+        make("rect", { class: "frame frame-echo frame-echo--a", x: -it.w / 2 - 2, y: -it.h / 2 - 2, width: it.w + 4, height: it.h + 4 }),
+        make("rect", { class: "frame frame-echo frame-echo--b", x: -it.w / 2 + 2, y: -it.h / 2 + 2, width: it.w - 4, height: it.h - 4 }),
         make("circle", { class: "anchor-ring", cx: -it.w / 2, cy: -it.h / 2, r: 5.5 }),
         make("circle", { class: "anchor-dot", cx: -it.w / 2, cy: -it.h / 2, r: 2.1 })
       );
@@ -361,9 +366,23 @@
     outline.setAttribute("stroke", "rgba(237,228,211,.85)");
     outline.setAttribute("stroke-width", "2");
     outline.setAttribute("vector-effect", "non-scaling-stroke");
-    svg.append(outline);
+    const outlineB = document.createElementNS(NS, "path");
+    outlineB.setAttribute("class", "neg-outline neg-outline--b");
+    outlineB.setAttribute("fill", "none");
+    outlineB.setAttribute("stroke", "rgba(237,228,211,.55)");
+    outlineB.setAttribute("stroke-width", "1");
+    outlineB.setAttribute("transform", "translate(1.6 0)");
+    outlineB.setAttribute("vector-effect", "non-scaling-stroke");
+    const outlineC = document.createElementNS(NS, "path");
+    outlineC.setAttribute("class", "neg-outline neg-outline--c");
+    outlineC.setAttribute("fill", "none");
+    outlineC.setAttribute("stroke", "rgba(47,91,255,.65)");
+    outlineC.setAttribute("stroke-width", "1");
+    outlineC.setAttribute("transform", "translate(-1.6 0.9)");
+    outlineC.setAttribute("vector-effect", "non-scaling-stroke");
+    svg.append(outline, outlineB, outlineC);
     it._fig.appendChild(svg);
-    it._neg = { clipShape, outline };
+    it._neg = { clipShape, outline, outlineB, outlineC };
   };
 
   const blobPath = (cx, cy, R, tt) => {
@@ -561,7 +580,7 @@
         const dx = Math.max(left - pointer.x, 0, pointer.x - (left + it.w));
         const dy = Math.max(top - pointer.y, 0, pointer.y - (top + it.h));
         const dist = Math.hypot(dx, dy);
-        if (dist < 320) targets.push({ it, i, left, top, dist });
+        if (dist < 360) targets.push({ it, i, left, top, dist });
       });
       targets.sort((a, b) => a.dist - b.dist);
       targets.slice(0, 5).forEach(({ it, i, left, top, dist }) => {
@@ -570,8 +589,8 @@
         const ly = pointer.y - top;
         const R =
           Math.min(it.w, it.h) *
-          0.36 *
-          (0.55 + 0.45 * Math.max(0, 1 - dist / 320));
+          0.46 *
+          (0.55 + 0.45 * Math.max(0, 1 - dist / 360));
         if (!it._neg) return;
         const d = blobPath(lx, ly, R, tt);
         it._neg.clipShape.setAttribute("d", d);
