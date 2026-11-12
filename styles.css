@@ -284,6 +284,16 @@ svg {
   }
 }
 
+.world-rig {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 8;
+}
+
 .unit .frame {
   fill: none;
   stroke: rgba(237, 228, 211, 0.24);
