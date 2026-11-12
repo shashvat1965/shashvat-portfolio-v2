@@ -337,6 +337,7 @@
           box.style.setProperty("--d", j);
           if (j === 1) box.classList.add("tint-a");
           if (j === 2) box.classList.add("tint-b");
+          if (j === 3) box.classList.add("tint-invert");
           if (j === 4) box.classList.add("tint-c");
           if (j % 2 === 0) {
             box.classList.add("is-lined");

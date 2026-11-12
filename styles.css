@@ -222,6 +222,11 @@ svg {
 .gbox.tint-c .gimg {
   filter: contrast(1.2) brightness(1.1);
 }
+.gbox.tint-invert .gimg {
+  filter: invert(1) hue-rotate(180deg) saturate(1.35) contrast(1.04);
+  mix-blend-mode: normal;
+  opacity: 0.72;
+}
 .gbox.tint-b::before {
   content: "";
   position: absolute;
