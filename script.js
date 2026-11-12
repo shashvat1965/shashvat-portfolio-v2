@@ -178,6 +178,10 @@
   const readoutTitle = document.querySelector("[data-readout-title]");
   const readoutMeta = document.querySelector("[data-readout-meta]");
   const board = document.querySelector(".board");
+  const inverseRig = document.querySelector("[data-inverse-rig]");
+  const inverseFill = document.querySelector("[data-inverse-fill]");
+  const inverseLineA = document.querySelector("[data-inverse-line-a]");
+  const inverseLineC = document.querySelector("[data-inverse-line-c]");
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -335,63 +339,6 @@
     });
   };
 
-
-  const ensureNeg = (it, idx) => {
-    if (it._neg) return;
-    const svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("class", "neg-svg");
-    svg.setAttribute("viewBox", `0 0 ${it.w} ${it.h}`);
-    svg.setAttribute("preserveAspectRatio", "none");
-    const defs = document.createElementNS(NS, "defs");
-    const clip = document.createElementNS(NS, "clipPath");
-    clip.setAttribute("id", `negclip-${idx}`);
-    const clipShape = document.createElementNS(NS, "path");
-    clip.append(clipShape);
-    const flt = document.createElementNS(NS, "filter");
-    flt.setAttribute("id", `neginv-${idx}`);
-    flt.append(
-      make("feColorMatrix", {
-        type: "matrix",
-        values: "-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0",
-      })
-    );
-    defs.append(clip, flt);
-    svg.append(defs);
-    const image = document.createElementNS(NS, "image");
-    image.setAttribute("x", "0");
-    image.setAttribute("y", "0");
-    image.setAttribute("width", it.w);
-    image.setAttribute("height", it.h);
-    image.setAttribute("preserveAspectRatio", "xMidYMid slice");
-    image.setAttribute("href", `assets/img/${it.src}.jpg`);
-    image.setAttribute("clip-path", `url(#negclip-${idx})`);
-    image.setAttribute("filter", `url(#neginv-${idx})`);
-    svg.append(image);
-    const outline = document.createElementNS(NS, "path");
-    outline.setAttribute("class", "neg-outline");
-    outline.setAttribute("fill", "none");
-    outline.setAttribute("stroke", "rgba(237,228,211,.85)");
-    outline.setAttribute("stroke-width", "2");
-    outline.setAttribute("vector-effect", "non-scaling-stroke");
-    const outlineB = document.createElementNS(NS, "path");
-    outlineB.setAttribute("class", "neg-outline neg-outline--b");
-    outlineB.setAttribute("fill", "none");
-    outlineB.setAttribute("stroke", "rgba(237,228,211,.55)");
-    outlineB.setAttribute("stroke-width", "1");
-    outlineB.setAttribute("transform", "translate(1.6 0)");
-    outlineB.setAttribute("vector-effect", "non-scaling-stroke");
-    const outlineC = document.createElementNS(NS, "path");
-    outlineC.setAttribute("class", "neg-outline neg-outline--c");
-    outlineC.setAttribute("fill", "none");
-    outlineC.setAttribute("stroke", "rgba(47,91,255,.65)");
-    outlineC.setAttribute("stroke-width", "1");
-    outlineC.setAttribute("transform", "translate(-1.6 0.9)");
-    outlineC.setAttribute("vector-effect", "non-scaling-stroke");
-    svg.append(outline, outlineB, outlineC);
-    [outline, outlineB, outlineC].forEach(randomizeFlicker);
-    it._fig.appendChild(svg);
-    it._neg = { clipShape, outline, outlineB, outlineC };
-  };
 
   const blobPath = (cx, cy, R, tt) => {
     const N = 20;
@@ -556,7 +503,6 @@
   };
 
   const onMove = (e) => {
-    if (window.scrollY > board.offsetHeight * 0.6) return;
     pointer.x = e.clientX;
     pointer.y = e.clientY;
     pointer.seen = true;
@@ -565,7 +511,7 @@
     pointer.inCanvas = inBoard && !onChrome;
     mouse.x = e.clientX / window.innerWidth;
     mouse.y = e.clientY / window.innerHeight;
-    if (cross) {
+    if (cross && window.scrollY <= board.offsetHeight * 0.6) {
       cross.classList.add("is-on");
       cross.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
     }
@@ -589,39 +535,23 @@
     cam.y += (ty - cam.y) * 0.06;
     world.style.transform = `translate3d(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px, 0)`;
 
+    if (pointer.seen) {
+      const R = 172 + Math.sin(t * 0.9) * 7;
+      const d = blobPath(pointer.x, pointer.y, R, t);
+      inverseFill.setAttribute("d", d);
+      inverseLineA.setAttribute("d", d);
+      inverseLineC.setAttribute("d", d);
+      inverseRig.classList.add("is-on");
+    } else {
+      inverseRig.classList.remove("is-on");
+    }
+
     if (pointer.seen && pointer.inCanvas && window.scrollY < board.offsetHeight * 0.6) {
       const boardRect = board.getBoundingClientRect();
       const px = pointer.x - boardRect.left;
       const py = pointer.y - boardRect.top;
       near = nearest(px, py);
       setNear(near);
-
-      items.forEach((it) => it._fig.classList.remove("is-blob"));
-      const tt = now / 1000;
-      const targets = [];
-      items.forEach((it, i) => {
-        const left = it.x + cam.x;
-        const top = it.y + cam.y;
-        const dx = Math.max(left - px, 0, px - (left + it.w));
-        const dy = Math.max(top - py, 0, py - (top + it.h));
-        const dist = Math.hypot(dx, dy);
-        if (dist < 360) targets.push({ it, i, left, top, dist });
-      });
-      targets.sort((a, b) => a.dist - b.dist);
-      targets.slice(0, 5).forEach(({ it, i, left, top, dist }) => {
-        ensureNeg(it, i);
-        const lx = px - left;
-        const ly = py - top;
-        const R =
-          Math.min(it.w, it.h) *
-          0.46 *
-          (0.55 + 0.45 * Math.max(0, 1 - dist / 360));
-        if (!it._neg) return;
-        const d = blobPath(lx, ly, R, tt);
-        it._neg.clipShape.setAttribute("d", d);
-        it._neg.outline.setAttribute("d", d);
-        it._fig.classList.add("is-blob");
-      });
 
       updateReadout();
 
@@ -673,7 +603,6 @@
       if (cross) cross.style.opacity = "";
     } else if (cross) {
       cross.classList.remove("is-on");
-      items.forEach((it) => it._fig.classList.remove("is-blob"));
       leaders.forEach((l) => (l.line.style.display = "none"));
       leaderTicks.forEach((l) => (l.tick.style.display = "none"));
       tris.forEach((l) => (l.style.display = "none"));
