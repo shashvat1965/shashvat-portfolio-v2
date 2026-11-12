@@ -181,7 +181,7 @@
   let units = [];
   let near = [];
   let signature = "";
-  let pointer = { x: 0, y: 0, seen: false };
+  let pointer = { x: 0, y: 0, seen: false, inCanvas: false };
   let mouse = { x: 0.5, y: 0.5 };
   const cam = { x: 0, y: 0 };
   let target = { x: 0, y: 0 };
@@ -200,6 +200,14 @@
     el.style.animationName = flickerNames[Math.floor(Math.random() * flickerNames.length)];
     el.style.animationDuration = `${(0.65 + Math.random() * 1.35).toFixed(2)}s`;
     el.style.animationDelay = `${(-Math.random() * 2.2).toFixed(2)}s`;
+    el.style.animationTimingFunction = "steps(1, end)";
+    el.style.animationIterationCount = "infinite";
+  };
+
+  const randomizeLeaderFlicker = (el) => {
+    el.style.animationName = "leader-flicker";
+    el.style.animationDuration = `${(0.9 + Math.random() * 1.5).toFixed(2)}s`;
+    el.style.animationDelay = `${(-Math.random() * 2).toFixed(2)}s`;
     el.style.animationTimingFunction = "steps(1, end)";
     el.style.animationIterationCount = "infinite";
   };
@@ -498,31 +506,40 @@
   };
 
   let leaders = [];
+  let leaderTicks = [];
   let tris = [];
+  let leaderDist = null;
   const buildLines = () => {
     if (!cursorRig) return;
     cursorRig.innerHTML = "";
     leaders = [];
+    leaderTicks = [];
     tris = [];
     const variants = [
-      { cls: "leader-main", ox: 0, oy: 0 },
-      { cls: "leader-a", ox: 2.4, oy: 1.4 },
-      { cls: "leader-b", ox: -2.4, oy: -1.4 },
+      { cls: "leader-main", oy: 0, flick: false },
+      { cls: "leader-a", oy: -4, flick: true },
+      { cls: "leader-b", oy: 4, flick: true },
     ];
     for (let t = 0; t < 3; t++) {
       variants.forEach((v) => {
         const line = make("line", { class: v.cls });
-        randomizeFlicker(line);
+        if (v.flick) randomizeLeaderFlicker(line);
         cursorRig.append(line);
-        leaders.push({ line, t, ox: v.ox, oy: v.oy });
+        leaders.push({ line, t, oy: v.oy });
+        if (v.flick) {
+          const tick = make("line", { class: "leader-tick" });
+          cursorRig.append(tick);
+          leaderTicks.push({ tick, t, oy: v.oy });
+        }
       });
     }
     for (let i = 0; i < 3; i++) {
       const line = make("line", { class: "tri" });
-      randomizeFlicker(line);
       cursorRig.append(line);
       tris.push(line);
     }
+    leaderDist = make("text", { class: "leader-dist" });
+    cursorRig.append(leaderDist);
   };
 
   const layout = () => {
@@ -539,6 +556,9 @@
     pointer.x = e.clientX;
     pointer.y = e.clientY;
     pointer.seen = true;
+    const inBoard = !!(e.target && e.target.closest && e.target.closest(".board"));
+    const onChrome = !!(e.target && e.target.closest && e.target.closest(".hud, .status"));
+    pointer.inCanvas = inBoard && !onChrome;
     mouse.x = e.clientX / window.innerWidth;
     mouse.y = e.clientY / window.innerHeight;
     if (cross) {
@@ -565,7 +585,7 @@
     cam.y += (ty - cam.y) * 0.06;
     world.style.transform = `translate3d(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px, 0)`;
 
-    if (pointer.seen && window.scrollY < board.offsetHeight * 0.6) {
+    if (pointer.seen && pointer.inCanvas && window.scrollY < board.offsetHeight * 0.6) {
       near = nearest();
       setNear(near);
 
@@ -602,14 +622,25 @@
         x: items[n.i].x + cam.x + 2,
         y: items[n.i].y + cam.y + 2,
       }));
-      leaders.forEach(({ line, t, ox, oy }) => {
+      leaders.forEach(({ line, t, oy }) => {
         if (dot[t]) {
-          line.setAttribute("x1", pointer.x + ox);
-          line.setAttribute("y1", pointer.y + oy);
-          line.setAttribute("x2", dot[t].x + ox);
+          line.setAttribute("x1", pointer.x);
+          line.setAttribute("y1", pointer.y);
+          line.setAttribute("x2", dot[t].x);
           line.setAttribute("y2", dot[t].y + oy);
           line.style.display = "";
         } else line.style.display = "none";
+      });
+      leaderTicks.forEach(({ tick, t, oy }) => {
+        if (dot[t]) {
+          const x = dot[t].x;
+          const y = dot[t].y + oy;
+          tick.setAttribute("x1", x - 3.5);
+          tick.setAttribute("y1", y);
+          tick.setAttribute("x2", x + 3.5);
+          tick.setAttribute("y2", y);
+          tick.style.display = "";
+        } else tick.style.display = "none";
       });
       tris.forEach((line, i) => {
         const a = dot[i];
@@ -622,13 +653,24 @@
           line.style.display = "";
         } else line.style.display = "none";
       });
+      if (leaderDist) {
+        if (dot[0]) {
+          const d = Math.hypot(dot[0].x - pointer.x, dot[0].y - pointer.y) / 100;
+          leaderDist.textContent = d.toFixed(2);
+          leaderDist.setAttribute("x", (pointer.x + dot[0].x) / 2 + 6);
+          leaderDist.setAttribute("y", (pointer.y + dot[0].y) / 2 - 6);
+          leaderDist.style.display = "";
+        } else leaderDist.style.display = "none";
+      }
 
       if (cross) cross.style.opacity = "";
     } else if (cross) {
       cross.classList.remove("is-on");
       items.forEach((it) => it._fig.classList.remove("is-blob"));
       leaders.forEach((l) => (l.line.style.display = "none"));
+      leaderTicks.forEach((l) => (l.tick.style.display = "none"));
       tris.forEach((l) => (l.style.display = "none"));
+      if (leaderDist) leaderDist.style.display = "none";
     }
 
     requestAnimationFrame(frame);
@@ -653,6 +695,14 @@
     items.forEach((it) => it._fig.classList.remove("is-loaded"));
   } else {
     window.addEventListener("pointermove", onMove, { passive: true });
+  document.addEventListener("pointerleave", () => {
+    pointer.seen = false;
+    pointer.inCanvas = false;
+  });
+  window.addEventListener("blur", () => {
+    pointer.seen = false;
+    pointer.inCanvas = false;
+  });
     window.addEventListener("scroll", hideOnScroll, { passive: true });
     window.addEventListener("resize", () => {
       if (window.innerWidth <= 900) {
