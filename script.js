@@ -152,6 +152,7 @@
   const mapView = document.querySelector("[data-map-view]");
   let manual = null;
   let mapDrag = false;
+  const blob = { x: 0, y: 0, on: false, item: -1 };
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -220,6 +221,11 @@
       const glitch = document.createElement("span");
       glitch.className = "glitch";
       fig.appendChild(glitch);
+      const neg = document.createElement("span");
+      neg.className = "neg";
+      neg.style.backgroundImage = `url(assets/img/${it.src}.jpg)`;
+      neg.style.backgroundPosition = it.pos || "50% 50%";
+      fig.appendChild(neg);
       world.appendChild(fig);
 
       const unit = make("g", {
@@ -337,7 +343,6 @@
           box.style.setProperty("--d", j);
           if (j === 1) box.classList.add("tint-a");
           if (j === 2) box.classList.add("tint-b");
-          if (j === 3) box.classList.add("tint-invert");
           if (j === 4) box.classList.add("tint-c");
           if (j % 2 === 0) {
             box.classList.add("is-lined");
@@ -462,6 +467,56 @@
     if (pointer.seen && window.scrollY < board.offsetHeight * 0.6) {
       near = nearest();
       setNear(near);
+
+      items.forEach((it) => it._fig.classList.remove("is-hot"));
+      const hit = near.find((n) => {
+        const it = items[n.i];
+        const left = it.x + cam.x;
+        const top = it.y + cam.y;
+        return (
+          pointer.x >= left &&
+          pointer.x <= left + it.w &&
+          pointer.y >= top &&
+          pointer.y <= top + it.h
+        );
+      });
+      if (hit) {
+        const it = items[hit.i];
+        const left = it.x + cam.x;
+        const top = it.y + cam.y;
+        const lx = pointer.x - left;
+        const ly = pointer.y - top;
+        if (blob.item !== hit.i || !blob.on) {
+          blob.item = hit.i;
+          blob.x = lx;
+          blob.y = ly;
+          blob.on = true;
+        }
+        blob.x += (lx - blob.x) * 0.22;
+        blob.y += (ly - blob.y) * 0.22;
+        const tt = now / 1000;
+        const R = Math.min(it.w, it.h) * 0.36;
+        const N = 26;
+        const pts = [];
+        for (let k = 0; k < N; k++) {
+          const a = (k / N) * Math.PI * 2;
+          const r =
+            R *
+            (0.82 +
+              0.16 * Math.sin(a * 3 + tt * 1.35) +
+              0.11 * Math.sin(a * 5 - tt * 1.1) +
+              0.07 * Math.sin(a * 7 + tt * 0.8));
+          pts.push(
+            `${(blob.x + Math.cos(a) * r).toFixed(1)}px ${(blob.y + Math.sin(a) * r).toFixed(1)}px`
+          );
+        }
+        const neg = it._fig.querySelector(".neg");
+        if (neg) neg.style.clipPath = `polygon(${pts.join(",")})`;
+        it._fig.classList.add("is-hot");
+      } else {
+        blob.on = false;
+      }
+
       updateReadout();
 
       const dot = near.map((n) => ({
