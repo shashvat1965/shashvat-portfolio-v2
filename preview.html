@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>preview — rec a</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --pitch: #0a0a0b;
+        --bone: #ede4d3;
+        --blue: #2f5bff;
+        --chlorine: #8fe3dc;
+        --display: "Archivo", sans-serif;
+        --mono: "Space Mono", monospace;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        gap: 14px;
+        padding: 24px;
+        background: #050506;
+        color: var(--bone);
+        font-family: var(--display);
+        text-transform: lowercase;
+        letter-spacing: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+      .meta {
+        width: min(960px, 100%);
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: rgba(237, 228, 211, 0.55);
+      }
+      .meta b { color: var(--bone); font-weight: 700; }
+      .device {
+        position: relative;
+        width: min(960px, 100%);
+        aspect-ratio: 960 / 600;
+        border: 1px solid rgba(237, 228, 211, 0.3);
+        overflow: hidden;
+        background: var(--pitch);
+        user-select: none;
+      }
+      .device::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 90;
+        pointer-events: none;
+        opacity: 0.07;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+
+      /* leader */
+      .leader {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: var(--pitch);
+        z-index: 20;
+        transition: opacity 400ms ease;
+      }
+      .leader.is-off { opacity: 0; pointer-events: none; }
+      .leader__cross {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(var(--bone) 1px, transparent 1px) 50% 50% / 100% 1px no-repeat,
+          linear-gradient(90deg, var(--bone) 1px, transparent 1px) 50% 50% / 1px 100% no-repeat;
+        opacity: 0.16;
+      }
+      .leader__circle {
+        position: absolute;
+        width: 42%;
+        aspect-ratio: 1;
+        border: 1px solid rgba(237, 228, 211, 0.18);
+        border-radius: 50%;
+      }
+      .leader__count {
+        position: relative;
+        z-index: 2;
+        font-family: var(--display);
+        font-variation-settings: "wdth" 62, "wght" 900;
+        font-weight: 900;
+        font-size: clamp(7rem, 22vw, 14rem);
+        line-height: 0.8;
+        color: var(--bone);
+      }
+      .leader__count span { display: block; }
+      .leader__count span.is-beat { animation: beat 260ms ease; }
+      @keyframes beat {
+        0% { transform: scale(0.92); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .leader__slate {
+        position: absolute;
+        left: 20px;
+        top: 16px;
+        display: flex;
+        gap: 16px;
+        font-family: var(--mono);
+        font-size: 9px;
+        color: rgba(237, 228, 211, 0.55);
+      }
+      .leader__slate b { color: var(--bone); font-weight: 700; }
+      .leader__bottom {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        font-family: var(--mono);
+        font-size: 9px;
+        color: rgba(237, 228, 211, 0.5);
+      }
+      .roll {
+        pointer-events: auto;
+        padding: 9px 12px;
+        border: 1px solid rgba(237, 228, 211, 0.4);
+        background: var(--pitch);
+        color: var(--bone);
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0;
+        text-transform: lowercase;
+        cursor: pointer;
+      }
+      .roll:hover { background: var(--blue); border-color: var(--blue); color: var(--pitch); }
+
+      /* field */
+      .field {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 500ms ease;
+      }
+      .field.is-on { opacity: 1; }
+      .hud {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        z-index: 27;
+        font-family: var(--mono);
+        font-size: 8px;
+        color: rgba(237, 228, 211, 0.6);
+      }
+      .hud__id, .hud__nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        background: var(--pitch);
+        border: 1px solid rgba(237, 228, 211, 0.28);
+      }
+      .hud__id img { width: 16px; height: 16px; border-radius: 50%; background: #1a1a1a; }
+      .hud__id b { font-family: var(--display); font-weight: 700; font-size: 10px; color: var(--bone); }
+      .hud__nav { gap: 12px; }
+      .hud__nav button {
+        background: none;
+        border: 0;
+        padding: 0;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      .hud__nav button:hover { color: var(--blue); }
+
+      .cards { position: absolute; inset: 0; }
+      .card {
+        position: absolute;
+        overflow: hidden;
+        border: 1px solid rgba(237, 228, 211, 0.22);
+        background: #111;
+        transform: rotate(var(--r, 0deg));
+        transition: box-shadow 120ms ease;
+      }
+      .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .card.is-near {
+        box-shadow: 0 0 0 1px var(--chlorine), 4px 0 0 rgba(47, 91, 255, 0.5), -4px 0 0 rgba(143, 227, 220, 0.5);
+      }
+      .card.is-near .scan { opacity: 0.7; animation: scan 3s linear infinite; }
+      .scan {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        filter: saturate(1.3) contrast(1.1);
+        pointer-events: none;
+      }
+      @keyframes scan {
+        0% { clip-path: inset(0 0 88% 0); transform: translateX(0); }
+        15% { transform: translateX(6px); }
+        25% { transform: translateX(-4px); }
+        100% { clip-path: inset(88% 0 0 0); transform: translateX(0); }
+      }
+      .status {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 27;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+        background: var(--pitch);
+        border-top: 1px solid rgba(237, 228, 211, 0.2);
+        font-family: var(--mono);
+        font-size: 7.5px;
+        color: rgba(237, 228, 211, 0.5);
+      }
+      .status__id { color: var(--chlorine); }
+      .status__title { color: var(--bone); font-family: var(--display); font-weight: 500; font-size: 11px; }
+      .status__meta { margin-left: auto; }
+      .status button {
+        color: inherit;
+        background: none;
+        border: 0;
+        padding: 0;
+        font: inherit;
+        cursor: pointer;
+      }
+      .status button:hover { color: var(--blue); }
+
+      /* field scan sweep */
+      .sweep {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 1px;
+        z-index: 26;
+        background: #6ea0ff;
+        box-shadow: 0 0 12px rgba(47, 91, 255, 0.9);
+        opacity: 0;
+      }
+      .field.is-on .sweep { animation: sweep 1.6s ease-out 0.3s 1; }
+      @keyframes sweep {
+        0% { opacity: 0; top: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { opacity: 0; top: 100%; }
+      }
+
+      /* index */
+      .index {
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        padding: 44px 22px 40px;
+        background: var(--pitch);
+        overflow: auto;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms ease;
+      }
+      .index.is-on { opacity: 1; pointer-events: auto; }
+      .index__head {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--mono);
+        font-size: 8px;
+        color: rgba(237, 228, 211, 0.5);
+        margin-bottom: 14px;
+      }
+      .index__grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .index figure { margin: 0; border: 1px solid rgba(237, 228, 211, 0.2); background: #111; }
+      .index img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; }
+      .index figcaption {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 5px 6px;
+        font-family: var(--mono);
+        font-size: 7px;
+        color: rgba(237, 228, 211, 0.55);
+      }
+      .index figcaption b { color: var(--bone); font-weight: 400; }
+      .back {
+        position: absolute;
+        right: 22px;
+        bottom: 16px;
+        z-index: 2;
+        padding: 6px 9px;
+        border: 1px solid rgba(237, 228, 211, 0.35);
+        background: var(--pitch);
+        color: var(--bone);
+        font-family: var(--mono);
+        font-size: 8px;
+        cursor: pointer;
+      }
+      .back:hover { background: var(--blue); border-color: var(--blue); color: var(--pitch); }
+
+      /* credits */
+      .credits {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 28px;
+        background: var(--pitch);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms ease;
+      }
+      .credits.is-on { opacity: 1; pointer-events: auto; }
+      .credits p { margin: 0; }
+      .credits__k { font-family: var(--mono); font-size: 8px; color: rgba(237, 228, 211, 0.45); margin-bottom: 10px; }
+      .credits__line { max-width: 44ch; font-size: clamp(18px, 2.4vw, 26px); line-height: 1.2; }
+      .credits__line a { border-bottom: 1px solid var(--blue); }
+      .credits__links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; font-family: var(--mono); font-size: 8px; }
+      .credits__links a { color: rgba(237, 228, 211, 0.65); }
+      .credits__links a:hover { color: var(--blue); }
+      .credits__close { position: absolute; right: 20px; top: 18px; font-family: var(--mono); font-size: 8px; background: none; border: 0; color: var(--bone); cursor: pointer; }
+      .credits__colophon { margin-top: 24px; font-family: var(--mono); font-size: 7px; color: rgba(237, 228, 211, 0.35); }
+
+      @media (max-width: 700px) {
+        .device { aspect-ratio: 3/4; }
+        .cards .card { transform: scale(0.9); }
+        .index__grid { grid-template-columns: repeat(2, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="meta">
+      <span><b>preview / rec a</b> — leader → sound → field → index → credits</span>
+      <span>low-res concept / not the live site</span>
+    </div>
+
+    <div class="device" id="device">
+      <!-- leader -->
+      <div class="leader" id="leader">
+        <div class="leader__cross"></div>
+        <div class="leader__circle"></div>
+        <div class="leader__slate">
+          <b>shashvat singh</b><span>personal index / 2026</span><span>sound on</span>
+        </div>
+        <div class="leader__count"><span id="count">3</span></div>
+        <div class="leader__bottom">
+          <button class="roll" id="roll">click to roll</button>
+          <span>the click starts the picture + the sound</span>
+        </div>
+      </div>
+
+      <!-- field -->
+      <div class="field" id="field">
+        <div class="hud">
+          <span class="hud__id"><img src="assets/favicon.png" alt="" /><b>shashvat singh</b><span>personal index / 2026</span></span>
+          <span class="hud__nav">
+            <button id="indexBtn">index</button>
+            <button id="creditsBtn">credits</button>
+            <button id="muteBtn">sound on</button>
+          </span>
+        </div>
+
+        <div class="cards" id="cards">
+          <div class="card" style="left:4%;top:8%;width:20%;height:34%;--r:-2deg" data-title="past lives / 2023" data-src="poster-past-lives">
+            <img src="assets/img/poster-past-lives.jpg" alt="past lives poster" /><span class="scan" style="background-image:url(assets/img/poster-past-lives.jpg)"></span>
+          </div>
+          <div class="card" style="left:27%;top:5%;width:22%;height:25%;--r:2deg" data-title="loss of life / mgmt" data-src="cover-loss-of-life">
+            <img src="assets/img/cover-loss-of-life.jpg" alt="mgmt loss of life" /><span class="scan" style="background-image:url(assets/img/cover-loss-of-life.jpg)"></span>
+          </div>
+          <div class="card" style="left:52%;top:10%;width:20%;height:38%;--r:-1deg" data-title="tokyo / feed 12" data-src="pin-12">
+            <img src="assets/img/pin-12.jpg" alt="neon tokyo" /><span class="scan" style="background-image:url(assets/img/pin-12.jpg)"></span>
+          </div>
+          <div class="card" style="left:76%;top:6%;width:19%;height:32%;--r:2deg" data-title="perfect blue / 1997" data-src="poster-perfect-blue">
+            <img src="assets/img/poster-perfect-blue.jpg" alt="perfect blue" /><span class="scan" style="background-image:url(assets/img/poster-perfect-blue.jpg)"></span>
+          </div>
+          <div class="card" style="left:10%;top:48%;width:24%;height:30%;--r:1deg" data-title="feed 01 / tree" data-src="pin-01">
+            <img src="assets/img/pin-01.jpg" alt="tree" /><span class="scan" style="background-image:url(assets/img/pin-01.jpg)"></span>
+          </div>
+          <div class="card" style="left:40%;top:46%;width:21%;height:34%;--r:-2deg" data-title="there will be blood / 2007" data-src="poster-there-will-be-blood">
+            <img src="assets/img/poster-there-will-be-blood.jpg" alt="there will be blood" /><span class="scan" style="background-image:url(assets/img/poster-there-will-be-blood.jpg)"></span>
+          </div>
+          <div class="card" style="left:66%;top:50%;width:25%;height:28%;--r:1deg" data-title="feed 08 / flowers" data-src="pin-08">
+            <img src="assets/img/pin-08.jpg" alt="neon flowers" /><span class="scan" style="background-image:url(assets/img/pin-08.jpg)"></span>
+          </div>
+        </div>
+
+        <div class="sweep"></div>
+        <div class="status">
+          <span class="status__id">field / 00</span>
+          <span class="status__title" id="now">loss of life / mgmt / 0:24 preview</span>
+          <span class="status__meta">x0000 y0000 · click a card to open</span>
+        </div>
+      </div>
+
+      <!-- index -->
+      <div class="index" id="index">
+        <div class="index__head">
+          <span>index / 07 items</span>
+          <span>field is the mood · index is the archive</span>
+        </div>
+        <div class="index__grid">
+          <figure><img src="assets/img/poster-past-lives.jpg" alt="" /><figcaption><b>past lives / 2023</b><span>letterboxd ↗</span></figcaption></figure>
+          <figure><img src="assets/img/cover-loss-of-life.jpg" alt="" /><figcaption><b>loss of life / mgmt</b><span>spotify ↗</span></figcaption></figure>
+          <figure><img src="assets/img/pin-12.jpg" alt="" /><figcaption><b>tokyo / feed 12</b><span>pinterest ↗</span></figcaption></figure>
+          <figure><img src="assets/img/poster-perfect-blue.jpg" alt="" /><figcaption><b>perfect blue / 1997</b><span>letterboxd ↗</span></figcaption></figure>
+          <figure><img src="assets/img/pin-01.jpg" alt="" /><figcaption><b>feed 01 / tree</b><span>pinterest ↗</span></figcaption></figure>
+          <figure><img src="assets/img/poster-there-will-be-blood.jpg" alt="" /><figcaption><b>there will be blood / 2007</b><span>letterboxd ↗</span></figcaption></figure>
+        </div>
+        <button class="back" id="backBtn">back to field</button>
+      </div>
+
+      <!-- credits -->
+      <div class="credits" id="credits">
+        <button class="credits__close" id="closeCredits">close ×</button>
+        <p class="credits__k">end credits</p>
+        <p class="credits__line">i make software at <a href="https://clueso.io">clueso</a>. personal projects live at <a href="https://github.com/shashvat1965">github.com/shashvat1965</a>.</p>
+        <nav class="credits__links">
+          <a href="https://github.com/shashvat1965">github ↗</a>
+          <a href="https://letterboxd.com/shashvat1965/">letterboxd ↗</a>
+          <a href="https://in.pinterest.com/shashvat1965/">pinterest ↗</a>
+          <a href="mailto:shashvat1965@gmail.com">email ↗</a>
+        </nav>
+        <p class="credits__colophon">no cookies, no analytics. best served cold.</p>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const leader = document.getElementById("leader");
+    const field = document.getElementById("field");
+    const count = document.getElementById("count");
+    const roll = document.getElementById("roll");
+    const index = document.getElementById("index");
+    const credits = document.getElementById("credits");
+    const muteBtn = document.getElementById("muteBtn");
+    const now = document.getElementById("now");
+
+    let ctx = null;
+    let master = null;
+    let muted = false;
+
+    function beep(freq = 880) {
+      if (!ctx) return;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.frequency.value = freq;
+      o.type = "sine";
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+      o.connect(g).connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.2);
+    }
+
+    function startAudio() {
+      if (ctx) return;
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain();
+      master.gain.value = 0;
+      master.connect(ctx.destination);
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 760;
+      const o1 = ctx.createOscillator();
+      o1.type = "sine";
+      o1.frequency.value = 55;
+      const o2 = ctx.createOscillator();
+      o2.type = "triangle";
+      o2.frequency.value = 110;
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 0.09;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 0.03;
+      lfo.connect(lfoGain).connect(master.gain);
+      o1.connect(filter);
+      o2.connect(filter);
+      filter.connect(master);
+      o1.start();
+      o2.start();
+      lfo.start();
+      master.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 2.2);
+    }
+
+    roll.addEventListener("click", () => {
+      startAudio();
+      let n = 3;
+      count.textContent = n;
+      const tick = () => {
+        beep(n === 1 ? 1320 : 880);
+        if (n === 1) {
+          setTimeout(() => {
+            leader.classList.add("is-off");
+            field.classList.add("is-on");
+            muteBtn.textContent = "sound on";
+            const near = document.querySelectorAll(".card");
+            near.forEach((c, i) => setTimeout(() => c.classList.add("is-near"), 500 + i * 140));
+            setTimeout(() => near.forEach((c) => c.classList.remove("is-near")), 2400);
+          }, 420);
+          return;
+        }
+        n -= 1;
+        setTimeout(() => {
+          count.textContent = n;
+          count.classList.remove("is-beat");
+          void count.offsetWidth;
+          count.classList.add("is-beat");
+          tick();
+        }, 620);
+      };
+      tick();
+    });
+
+    document.getElementById("indexBtn").addEventListener("click", () => index.classList.add("is-on"));
+    document.getElementById("backBtn").addEventListener("click", () => index.classList.remove("is-on"));
+    document.getElementById("creditsBtn").addEventListener("click", () => credits.classList.add("is-on"));
+    document.getElementById("closeCredits").addEventListener("click", () => credits.classList.remove("is-on"));
+
+    muteBtn.addEventListener("click", () => {
+      if (!ctx) return;
+      muted = !muted;
+      master.gain.linearRampToValueAtTime(muted ? 0 : 0.12, ctx.currentTime + 0.2);
+      muteBtn.textContent = muted ? "sound off" : "sound on";
+    });
+
+    document.querySelectorAll(".card").forEach((card) => {
+      card.addEventListener("mouseenter", () => {
+        document.querySelectorAll(".card").forEach((c) => c.classList.remove("is-near"));
+        card.classList.add("is-near");
+        now.textContent = card.dataset.title + " / preview";
+      });
+    });
+  </script>
+</body>
+</html>
