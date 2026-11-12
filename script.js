@@ -53,6 +53,8 @@
     { src: "cover-the-dark-side-of-the-moon", label: "the dark side of the moon / pink floyd / 1973", alt: "the dark side of the moon album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
     { src: "cover-the-glow-pt-2", label: "the glow, pt. 2 / the microphones / 2001", alt: "the glow, pt. 2 album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
     { src: "cover-bismillah", label: "bismillah / peter cat recording co. / 2019", alt: "bismillah album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-reality-awaits", label: "reality awaits / the strokes / 2026", alt: "the strokes reality awaits album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "poster-django-unchained", label: "django unchained / 2012", alt: "django unchained film poster", x: 0, y: 0, w: 230, h: 345, r: 0 },
   ];
   const typeOf = (src) =>
     src.startsWith("poster") ? "poster" : src.startsWith("cover") ? "cover" : "pin";
@@ -62,7 +64,7 @@
 
   const pattern = [];
   for (let i = 0; i < 6; i++) pattern.push("pin", "poster", "pin", "cover", "poster", "pin", "cover");
-  pattern.push("pin", "poster", "cover", "poster", "cover");
+  pattern.push("pin", "poster", "cover", "poster", "cover", "cover", "poster");
 
   const items = pattern.map((t) => queues[t].shift()).filter(Boolean);
 
@@ -163,6 +165,8 @@
     "cover-the-dark-side-of-the-moon": "https://open.spotify.com/album/4LH4d3cOWNNsVw41Gqt2kv",
     "cover-the-glow-pt-2": "https://open.spotify.com/album/6QYoRO2sXThCORAifrP4Bl",
     "cover-bismillah": "https://open.spotify.com/album/3bmnc6GjltS6zD8elSBjCq",
+    "cover-reality-awaits": "https://open.spotify.com/album/2qMBBbfnw0pA6CDi7HiX44",
+    "poster-django-unchained": "https://letterboxd.com/film/django-unchained/",
   };
 
   const world = document.querySelector("[data-world]");
