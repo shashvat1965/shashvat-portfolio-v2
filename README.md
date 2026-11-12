@@ -53,7 +53,7 @@ python3 -m http.server 4173
 ## Deploy
 
 Static. `og:url`, canonical and social card point at
-`https://shashvat1965.github.io/shashvat-portfolio/`. Update those URLs in
+`https://shashvat-portfolio-alpha.vercel.app/`. Update those URLs in
 `index.html` and regenerate `assets/og.jpg` (1200×630) if the domain changes.
 
 No analytics, no cookies. Type is Archivo + Space Mono; all lowercase, one
