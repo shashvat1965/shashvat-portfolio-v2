@@ -543,7 +543,22 @@
       muteBtn.textContent = muted ? "sound off" : "sound on";
     });
 
+    const hrefs = {
+      "poster-past-lives": "https://letterboxd.com/film/past-lives/",
+      "cover-loss-of-life": "https://open.spotify.com/album/4436CQF7pmjxkHCaJCGjmt",
+      "pin-12": "https://www.pinterest.com/pin/326933254224935417/",
+      "poster-perfect-blue": "https://letterboxd.com/film/perfect-blue/",
+      "pin-01": "https://www.pinterest.com/pin/855754366738322019/",
+      "poster-there-will-be-blood": "https://letterboxd.com/film/there-will-be-blood/",
+      "pin-08": "https://www.pinterest.com/pin/1148347605035844974/"
+    };
+
     document.querySelectorAll(".card").forEach((card) => {
+      const href = hrefs[card.dataset.src];
+      if (href) {
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => window.open(href, "_blank", "noopener,noreferrer"));
+      }
       card.addEventListener("mouseenter", () => {
         document.querySelectorAll(".card").forEach((c) => c.classList.remove("is-near"));
         card.classList.add("is-near");
