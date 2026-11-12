@@ -2,8 +2,8 @@
 
 (() => {
   const NS = "http://www.w3.org/2000/svg";
-    const WORLD_W = 2463;
-  const WORLD_H = 2428;
+    const WORLD_W = 2603;
+  const WORLD_H = 2603;
 
   const rawItems = [
     { src: "pin-01", label: "pinterest feed / 01", alt: "green tree swirling into a spiral", x: 40, y: 60, w: 280, h: 380, r: -2 },
@@ -67,8 +67,8 @@
   const items = pattern.map((t) => queues[t].shift()).filter(Boolean);
 
   const COLS = 7;
-  const CELL_W = 345;
-  const CELL_H = 340;
+  const CELL_W = 365;
+  const CELL_H = 365;
   const MARGIN = 24;
   const SCALE = 1.22;
   let col = 0;
