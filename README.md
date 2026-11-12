@@ -1,40 +1,47 @@
 # shashvat singh
 
-A full-screen field of images that pans with the mouse. Not a career portfolio:
-the images are the index, and a small strip at the bottom says what he does and
-where the personal projects live.
+A single, mouse-panned field of images. Not a career portfolio: the images are the index, and a small strip at the bottom says what he does and where the personal projects live.
 
 ```
-index.html    shell, hud, about strip
-styles.css    board, pieces, rig, mobile grid
-script.js     the plate, the camera, the annotation rig
-assets/img/   16 pinterest feed images, 6 film posters, 4 album covers
+index.html    shell, hud, status, minimap, about strip
+styles.css    board, pieces, scanner, annotation rig, blue accent
+script.js     mixed 39-piece layout, camera, proximity rig, scan, map
+assets/img/   19 pinterest crops, 14 film posters, 6 spotify covers
 ```
 
-## Images
+## Images and the mix
 
-- **Pinterest**: his home feed, not boards (16 images).
-- **Letterboxd**: favourites *Past Lives*, *12 Angry Men*, *Babylon*,
-  *Trainspotting*, plus recent five-stars *Schindler's List* and *Obsession*.
-- **Spotify**: the recent rotation, all 2024–2026 — MGMT *Loss of Life*, Ye
-  *Bully*, Gorillaz *The Mountain*, The Strokes *Reality Awaits*.
+- 19 Pinterest pieces: 16 from the home feed (736px) + 3 alternate crops.
+- 14 Letterboxd posters: favourites plus recent five-stars (Past Lives, 12 Angry
+  Men, Babylon, Trainspotting, There Will Be Blood, Whiplash, Perfect Blue, In
+  the Mood for Love, Oldboy, The Departed, Django Unchained, Project Hail Mary,
+  Schindler's List, Obsession).
+- 6 Spotify pieces, all 2023–2026: MGMT *Loss of Life*, Gorillaz *The
+  Mountain*, Ye *Bully*, The Strokes *Reality Awaits*, and the two 2023 GNR
+  singles *Perhaps* and *The General*.
 
-These are used for a personal, non-commercial page. They are not licensed for
-resale or redistribution beyond this site.
+Pieces are placed on a 7-column mosaic by a repeating mixed sequence
+(pin / poster / pin / cover / poster / pin), so no part of the grid is
+dominated by one source. World: 2576 × 2036.
 
-## The effect
+Every card is a real source link. Posters open Letterboxd, covers open Spotify,
+Pinterest pieces open the Pinterest profile (the home feed does not expose
+individual pin URLs).
 
-- The mouse moves a camera across a 2400×1700 plate, with exponential easing
-  and a small idle drift. The images on the sides slide in and out of view.
-- Every image has an annotation unit: a hairline frame, an anchor dot and a
-  numeric label. The three nearest images to the cursor get cyan frames, a
-  small scale/brightness lift, scanlines and semi-transparent chromatic edges.
-- Lines run from the cursor to those three anchors, plus a triangle between
-  them, so the technical web follows the pointer rather than sitting still.
-- The readout bottom-left names the nearest piece (film, album or feed image)
-  and shows live coordinates. The crosshair carries its own x/y.
-- `prefers-reduced-motion` freezes the camera and hides the cursor rig. Below
-  900px the plate becomes a two-column image grid with the about strip below.
+## The motion
+
+- The pointer pans the camera; the minimap (bottom right) can be clicked or
+  dragged to jump anywhere in the plate.
+- The nearest three pieces get the full annotation rig: corner brackets, ghost
+  frame, X diagonals, dimension ticks with W × H, anchor dot and ring, numeric
+  id, leader lines.
+- Connected images run a scanner: a displaced horizontal slice sweeps the
+  image with a glowing blue line, plus dashed ghost frames and a pulsing anchor
+  ring.
+- Cards are JS links rather than anchors, so the browser's URL preview never
+  covers the bottom status bar.
+- `prefers-reduced-motion` freezes the camera, scanner, and pulses.
+- Below 900px the plate becomes a two-column mixed grid with the about strip.
 
 ## Run it
 
@@ -43,16 +50,11 @@ python3 -m http.server 4173
 # http://localhost:4173
 ```
 
-## Editing
-
-All pieces live in the `items` array in `script.js`: image, label, alt, position
-and size in plate coordinates, rotation, and an optional crop position. World
-size is `2400 × 1700`. The mobile grid ignores the coordinates.
-
 ## Deploy
 
-Static. `og:url`, canonical and the social card point at
+Static. `og:url`, canonical and social card point at
 `https://shashvat1965.github.io/shashvat-portfolio/`. Update those URLs in
-`index.html` and regenerate `assets/og.jpg` (1200×630) if you deploy elsewhere.
+`index.html` and regenerate `assets/og.jpg` (1200×630) if the domain changes.
 
-No analytics, no cookies. Type is Archivo and Space Mono, from Google Fonts.
+No analytics, no cookies. Type is Archivo + Space Mono; all lowercase, one
+letter-spacing value. Favicon is the memoji from nblog-chi.
