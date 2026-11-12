@@ -1,18 +1,40 @@
 # shashvat singh
 
-A one-page portfolio built as a photocopied zine wall. The pinned posters around
-the masthead are on a shallow depth plane: moving the mouse shifts the vanishing
-point and each card's scale, so the collage reflows instead of sliding. A locked
-SVG annotation rig (hairlines, dots, scale readouts, match lines) measures it.
-
-No framework, no build step, no analytics.
+A full-screen field of images that pans with the mouse. Not a career portfolio:
+the images are the index, and a small strip at the bottom says what he does and
+where the personal projects live.
 
 ```
-index.html    content, poster cards, inline SVG plates
-styles.css    print/zine system, type, layout, grain
-script.js     depth field, annotation rig, cursor readout, music marquee
-assets/       favicon, social card
+index.html    shell, hud, about strip
+styles.css    board, pieces, rig, mobile grid
+script.js     the plate, the camera, the annotation rig
+assets/img/   16 pinterest feed images, 6 film posters, 4 album covers
 ```
+
+## Images
+
+- **Pinterest**: his home feed, not boards (16 images).
+- **Letterboxd**: favourites *Past Lives*, *12 Angry Men*, *Babylon*,
+  *Trainspotting*, plus recent five-stars *Schindler's List* and *Obsession*.
+- **Spotify**: the recent rotation, all 2024–2026 — MGMT *Loss of Life*, Ye
+  *Bully*, Gorillaz *The Mountain*, The Strokes *Reality Awaits*.
+
+These are used for a personal, non-commercial page. They are not licensed for
+resale or redistribution beyond this site.
+
+## The effect
+
+- The mouse moves a camera across a 2400×1700 plate, with exponential easing
+  and a small idle drift. The images on the sides slide in and out of view.
+- Every image has an annotation unit: a hairline frame, an anchor dot and a
+  numeric label. The three nearest images to the cursor get cyan frames, a
+  small scale/brightness lift, scanlines and semi-transparent chromatic edges.
+- Lines run from the cursor to those three anchors, plus a triangle between
+  them, so the technical web follows the pointer rather than sitting still.
+- The readout bottom-left names the nearest piece (film, album or feed image)
+  and shows live coordinates. The crosshair carries its own x/y.
+- `prefers-reduced-motion` freezes the camera and hides the cursor rig. Below
+  900px the plate becomes a two-column image grid with the about strip below.
 
 ## Run it
 
@@ -21,42 +43,16 @@ python3 -m http.server 4173
 # http://localhost:4173
 ```
 
-## How the motion works
+## Editing
 
-- Each card has a depth value. `scale = base + depth` and position is derived
-  from a single focal point, so near cards grow and get pushed outward while far
-  cards pull inward.
-- The pointer moves the focal point slightly and modulates scale; two-stage
-  damping (pointer, then per-card) plus a 2px idle drift keeps it alive.
-- The overlay is recomputed from the transformed geometry every frame: 1px
-  frames, anchor dots, raw scale labels and dot-to-dot match lines.
-- With `prefers-reduced-motion` the field is frozen at its static composition,
-  the marquee stops and the cursor readout is hidden.
-
-## Content
-
-- Films are his Letterboxd favourites and recent five-star watches. Music is
-  restricted to 2024–2026 releases from his recent rotation. The playlist line
-  is his own: *the thought is better than the act* (3,078 songs).
-- Project descriptions are written as outcomes, not stacks. Star and download
-  counts are as of November 2026 and will drift.
-- Beer appears three times: a bottle cap, the contact headline and the colophon.
+All pieces live in the `items` array in `script.js`: image, label, alt, position
+and size in plate coordinates, rotation, and an optional crop position. World
+size is `2400 × 1700`. The mobile grid ignores the coordinates.
 
 ## Deploy
 
-Static; point any host at this directory. `og:url`, canonical and the social
-card URLs point at
-`https://shashvat1965.github.io/shashvat-portfolio/`. If you deploy under a
-different repo name or a custom domain, update those four URLs in `index.html`
-and regenerate `assets/og.png` at 1200×630.
+Static. `og:url`, canonical and the social card point at
+`https://shashvat1965.github.io/shashvat-portfolio/`. Update those URLs in
+`index.html` and regenerate `assets/og.jpg` (1200×630) if you deploy elsewhere.
 
-`shashvatsingh.me` is still the CNAME on the old Pages repo but no longer
-resolves; reviving it would give the site the clean URL the last portfolio had.
-
-## Editing
-
-- Section labels are plain `<h2>`s; all caveats about headings apply.
-- Hero cards live in `.field`; positions are `--x`, `--y`, tilt `--r`, depth
-  `data-depth`. Hidden cards still get cleaned up by the script on resize.
-- The type system is Archivo (display/body), Newsreader italic (pull quotes) and
-  Space Mono (labels). Colour tokens are at the top of `styles.css`.
+No analytics, no cookies. Type is Archivo and Space Mono, from Google Fonts.
