@@ -129,7 +129,6 @@ svg {
   overflow: hidden;
   background: #111;
   box-shadow: 0 0 0 1px rgba(237, 228, 211, 0.16);
-  transform: rotate(var(--r, 0deg));
   background: #141414;
   transition: box-shadow 140ms ease;
 }
@@ -160,185 +159,110 @@ svg {
 .piece[role="link"] {
   cursor: pointer;
 }
-.piece .scan {
+.glitch {
   position: absolute;
   inset: 0;
-  z-index: 1;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  pointer-events: none;
-  filter: saturate(1.35) contrast(1.1) brightness(1.06);
-  mix-blend-mode: normal;
-}
-.piece.is-near .scan {
-  opacity: 0.9;
-  animation: scan-sweep 3.2s linear infinite;
-}
-.piece .scanline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
   z-index: 2;
-  height: 1px;
-  background: #6ea0ff;
-  box-shadow: 0 0 10px rgba(47, 91, 255, 0.9), 0 0 24px rgba(47, 91, 255, 0.5);
   opacity: 0;
   pointer-events: none;
+  transition: opacity 100ms linear;
 }
-.piece.is-near .scanline {
-  opacity: 0.95;
-  animation: line-sweep 3.2s linear infinite;
-}
-
-@keyframes scan-sweep {
-  0% {
-    clip-path: inset(0 0 88% 0);
-    transform: translateX(0);
-  }
-  12% {
-    transform: translateX(7px);
-  }
-  18% {
-    transform: translateX(-5px);
-  }
-  100% {
-    clip-path: inset(88% 0 0 0);
-    transform: translateX(0);
-  }
-}
-.piece.is-near {
-  z-index: 6;
-  box-shadow:
-    0 0 0 1px var(--chlorine),
-    5px 0 0 rgba(47, 91, 255, 0.5),
-    -5px 0 0 rgba(143, 227, 220, 0.5);
-}
-.piece.is-near img {
-  transform: scale(1.045);
-  filter: brightness(1.16) contrast(1.04) saturate(1.05);
-}
-.piece.is-near::after {
+.piece.is-near .glitch {
   opacity: 1;
 }
-
-/* ---------- overlay ---------- */
-.world-rig {
+.glitch::after {
+  content: "";
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  z-index: 4;
   pointer-events: none;
-  z-index: 8;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.06) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: screen;
+  opacity: 0.6;
 }
-.unit .frame {
-  fill: none;
-  stroke: rgba(237, 228, 211, 0.24);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  transition: stroke 120ms linear;
+.gbox {
+  position: absolute;
+  overflow: hidden;
 }
-.unit.is-near .frame {
-  stroke: var(--chlorine);
-  stroke-opacity: 0.95;
-  stroke-width: 1.25;
+.gbox.is-lined {
+  outline: 1px solid rgba(237, 228, 211, 0.55);
+  outline-offset: -1px;
 }
-.unit .full-art {
-  opacity: 0;
-  transition: opacity 120ms linear;
-}
-.unit.is-near .full-art {
-  opacity: 1;
-}
-.unit .ghost {
-  fill: none;
-  stroke: var(--ember);
-  stroke-width: 1.2;
-  stroke-opacity: 0.55;
-  vector-effect: non-scaling-stroke;
-}
-.unit .diag {
-  stroke: var(--chlorine);
-  stroke-width: 0.8;
-  stroke-opacity: 0.32;
-  vector-effect: non-scaling-stroke;
-}
-.unit .bracket {
-  fill: none;
-  stroke: var(--chlorine);
-  stroke-width: 1.4;
-  vector-effect: non-scaling-stroke;
-}
-.unit .dim-ext {
-  stroke: var(--chlorine);
-  stroke-width: 0.7;
-  stroke-opacity: 0.3;
-  vector-effect: non-scaling-stroke;
-}
-.unit .dim {
-  stroke: var(--chlorine);
-  stroke-width: 0.85;
-  stroke-opacity: 0.7;
-  vector-effect: non-scaling-stroke;
-}
-.unit .dim-label {
+.gbox.is-lined::after {
+  content: attr(data-code);
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  z-index: 3;
   font-family: var(--mono);
-  font-size: 8.5px;
-  letter-spacing: 0;
-  fill: var(--chlorine);
-  paint-order: stroke fill;
-  stroke: rgba(10, 10, 11, 0.9);
-  stroke-width: 2.6px;
+  font-size: 7px;
+  color: var(--bone);
+  text-shadow: 0 1px 3px rgba(10, 10, 11, 0.9);
 }
-.unit .anchor-dot {
-  fill: rgba(237, 228, 211, 0.42);
-  transition: fill 120ms linear;
+.gimg {
+  position: absolute;
+  display: block;
+  background-repeat: no-repeat;
+  background-position: 0 0;
 }
-.unit.is-near .anchor-dot {
-  fill: var(--chlorine);
+.gbox.tint-a .gimg {
+  filter: hue-rotate(120deg) saturate(1.7) contrast(1.1);
+  mix-blend-mode: screen;
+  opacity: 0.45;
 }
-.unit .anchor-ring {
-  fill: none;
-  stroke: var(--chlorine);
-  stroke-width: 1.1;
-  opacity: 0;
-  transition: opacity 120ms linear;
+.gbox.tint-b .gimg {
+  filter: hue-rotate(-70deg) saturate(1.5) contrast(1.05);
+  mix-blend-mode: screen;
+  opacity: 0.4;
 }
-.unit.is-near .anchor-ring {
-  opacity: 0.95;
-  animation: ring-pulse 1.8s ease-out infinite;
-  transform-box: fill-box;
-  transform-origin: center;
+.gbox.tint-c .gimg {
+  filter: contrast(1.2) brightness(1.1);
 }
-.unit.is-near .ghost {
-  stroke-dasharray: 5 7;
-  animation: ghost-dash 1.2s linear infinite;
+.gbox.tint-b::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.1) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
-@keyframes ring-pulse {
-  0% {
-    transform: scale(0.7);
-    opacity: 0.9;
-  }
+.piece.is-near .gbox {
+  animation: glitch-jitter 1.15s steps(2, end) infinite;
+  animation-delay: calc(var(--d, 0) * -0.23s);
+}
+.piece.is-near .gbox:nth-child(odd) .gimg {
+  animation: glitch-img 0.72s steps(2, end) infinite alternate;
+}
+@keyframes glitch-jitter {
+  0%,
   100% {
-    transform: scale(2.1);
-    opacity: 0;
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(4px, -2px);
+  }
+  50% {
+    transform: translate(-3px, 1px);
+  }
+  75% {
+    transform: translate(2px, 3px);
   }
 }
-@keyframes ghost-dash {
+@keyframes glitch-img {
   to {
-    stroke-dashoffset: -24;
+    transform: translate(5px, -3px);
   }
 }
-@keyframes line-sweep {
-  0% {
-    top: 0;
-  }
-  100% {
-    top: 100%;
-  }
-}
+
 .unit .id {
   font-family: var(--mono);
   font-size: 9px;
@@ -773,14 +697,14 @@ svg {
   .piece img {
     transition: none;
   }
-  .piece .scan,
-  .piece .scanline,
+  .glitch,
+  .gbox,
+  .gimg,
   .unit.is-near .ghost,
   .unit.is-near .anchor-ring {
     animation: none;
   }
-  .piece .scan,
-  .piece .scanline {
-    opacity: 0;
+  .glitch {
+    display: none;
   }
 }

@@ -86,7 +86,7 @@
     const jy = ((i * 53) % 23) - 11;
     it.x = MARGIN + col * CELL_W + (CELL_W - it.w) / 2 + jx;
     it.y = MARGIN + row * CELL_H + (CELL_H - it.h) / 2 + jy;
-    it.r = ((i * 7) % 7) - 3;
+    it.r = 0;
     col += 1;
     if (col >= COLS) {
       col = 0;
@@ -217,17 +217,14 @@
       img.src = `assets/img/${it.src}.jpg`;
       if (img.complete) fig.classList.add("is-loaded");
       fig.appendChild(img);
-      const scan = document.createElement("span");
-      scan.className = "scan";
-      fig.appendChild(scan);
-      const scanline = document.createElement("span");
-      scanline.className = "scanline";
-      fig.appendChild(scanline);
+      const glitch = document.createElement("span");
+      glitch.className = "glitch";
+      fig.appendChild(glitch);
       world.appendChild(fig);
 
       const unit = make("g", {
         class: "unit",
-        transform: `translate(${it.x + it.w / 2} ${it.y + it.h / 2}) rotate(${it.r})`,
+        transform: `translate(${it.x + it.w / 2} ${it.y + it.h / 2})`,
       });
       const full = make("g", { class: "full-art" });
 
@@ -321,10 +318,41 @@
       const it = items[n.i];
       it._fig.classList.add("is-near");
       it._unit.classList.add("is-near");
-      const scan = it._fig.querySelector(".scan");
-      if (scan && !scan.style.backgroundImage) {
-        scan.style.backgroundImage = `url(assets/img/${it.src}.jpg)`;
-        scan.style.backgroundPosition = it.pos || "50% 50%";
+      const glitch = it._fig.querySelector(".glitch");
+      if (glitch && !glitch.childElementCount) {
+        const regions = [
+          [0, 0, 58, 36],
+          [42, 0, 58, 44],
+          [0, 32, 46, 50],
+          [34, 46, 66, 54],
+          [18, 16, 40, 32],
+        ];
+        regions.forEach((r, j) => {
+          const box = document.createElement("span");
+          box.className = "gbox";
+          box.style.left = `${r[0]}%`;
+          box.style.top = `${r[1]}%`;
+          box.style.width = `${r[2]}%`;
+          box.style.height = `${r[3]}%`;
+          box.style.setProperty("--d", j);
+          if (j === 1) box.classList.add("tint-a");
+          if (j === 2) box.classList.add("tint-b");
+          if (j === 4) box.classList.add("tint-c");
+          if (j % 2 === 0) {
+            box.classList.add("is-lined");
+            box.dataset.code = String(j + 1).padStart(2, "0");
+          }
+          const img = document.createElement("span");
+          img.className = "gimg";
+          img.style.width = `${it.w}px`;
+          img.style.height = `${it.h}px`;
+          img.style.left = `${-(r[0] / 100) * it.w + (j % 3 - 1) * 7}px`;
+          img.style.top = `${-(r[1] / 100) * it.h + (j % 2 ? -5 : 5)}px`;
+          img.style.backgroundImage = `url(assets/img/${it.src}.jpg)`;
+          img.style.backgroundSize = `${it.w}px ${it.h}px`;
+          box.appendChild(img);
+          glitch.appendChild(box);
+        });
       }
     });
   };
