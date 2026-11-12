@@ -5,28 +5,31 @@ A single, mouse-panned field of images. Not a career portfolio: the images are t
 ```
 index.html    shell, hud, status, minimap, about strip
 styles.css    board, pieces, scanner, annotation rig, blue accent
-script.js     mixed 39-piece layout, camera, proximity rig, scan, map
-assets/img/   19 pinterest crops, 14 film posters, 6 spotify covers
+script.js     mixed 47-piece layout, camera, proximity rig, glitch, map
+assets/img/   19 pinterest crops, 14 film posters, 14 spotify covers
 ```
 
 ## Images and the mix
 
 - 19 Pinterest pieces: 16 from the home feed (736px) + 3 alternate crops.
-- 14 Letterboxd posters: favourites plus recent five-stars (Past Lives, 12 Angry
-  Men, Babylon, Trainspotting, There Will Be Blood, Whiplash, Perfect Blue, In
-  the Mood for Love, Oldboy, The Departed, Django Unchained, Project Hail Mary,
-  Schindler's List, Obsession).
-- 6 Spotify pieces, all 2023–2026: MGMT *Loss of Life*, Gorillaz *The
-  Mountain*, Ye *Bully*, The Strokes *Reality Awaits*, and the two 2023 GNR
-  singles *Perhaps* and *The General*.
+- 14 Letterboxd posters: Past Lives, 12 Angry Men, Babylon, Trainspotting,
+  Schindler's List, There Will Be Blood, Whiplash, Perfect Blue, In the Mood for
+  Love, Oldboy, The Departed, Harakiri, Another Round, The Banshees of
+  Inisherin.
+- 14 Spotify albums: The Strokes *The New Abnormal*, Radiohead *OK Computer*,
+  Radiohead *In Rainbows*, Frank Ocean *Blonde*, Kanye *Graduation*, The Strokes
+  *Is This It*, Kanye *My Beautiful Dark Twisted Fantasy*, The Strokes *Room On
+  Fire*, Elliott Smith *Either/Or*, Kanye *808s & Heartbreak*, Black Country,
+  New Road *Ants From Up There*, Pink Floyd *The Dark Side of the Moon*, The
+  Microphones *The Glow, Pt. 2*, Peter Cat Recording Co. *Bismillah*.
 
 Pieces are placed on a 7-column mosaic by a repeating mixed sequence
-(pin / poster / pin / cover / poster / pin), so no part of the grid is
-dominated by one source. World: 2576 × 2036.
+(pin / poster / cover / poster / cover inside each row and repeated), so no part
+of the grid is dominated by one source. World: 2576 × 2366.
 
 Every card is a real source link. Posters open Letterboxd, covers open Spotify,
-Pinterest pieces open the Pinterest profile (the home feed does not expose
-individual pin URLs).
+Pinterest pieces open their exact pin where one was resolvable, otherwise the
+profile.
 
 ## The motion
 
@@ -35,12 +38,13 @@ individual pin URLs).
 - The nearest three pieces get the full annotation rig: corner brackets, ghost
   frame, X diagonals, dimension ticks with W × H, anchor dot and ring, numeric
   id, leader lines.
-- Connected images run a scanner: a displaced horizontal slice sweeps the
-  image with a glowing blue line, plus dashed ghost frames and a pulsing anchor
-  ring.
+- Connected images fragment into overlapping offset crops with hue-shifted,
+  scanline-treated patches, and a smooth negative blob that follows the cursor,
+  morphs continuously, and is clipped separately into every card near it — so
+  it creeps in from the edge and can appear on two close cards at once.
 - Cards are JS links rather than anchors, so the browser's URL preview never
   covers the bottom status bar.
-- `prefers-reduced-motion` freezes the camera, scanner, and pulses.
+- `prefers-reduced-motion` freezes the camera and glitch, and hides the blob.
 - Below 900px the plate becomes a two-column mixed grid with the about strip.
 
 ## Run it

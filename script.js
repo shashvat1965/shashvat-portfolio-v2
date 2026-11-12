@@ -2,30 +2,26 @@
 
 (() => {
   const NS = "http://www.w3.org/2000/svg";
-  const MAP_H = 79;
+  const MAP_H = 92;
   const WORLD_W = 2576;
-  const WORLD_H = 2036;
+  const WORLD_H = 2366;
 
   const rawItems = [
     { src: "pin-01", label: "pinterest feed / 01", alt: "green tree swirling into a spiral", x: 40, y: 60, w: 280, h: 380, r: -2 },
     { src: "poster-past-lives", label: "past lives / 2023", alt: "past lives film poster", x: 340, y: 90, w: 230, h: 345, r: 1.5 },
     { src: "pin-03", label: "pinterest feed / 03", alt: "power line drawn in white on blue", x: 590, y: 40, w: 300, h: 400, r: -1 },
-    { src: "cover-loss-of-life", label: "loss of life / mgmt / 2024", alt: "mgmt, loss of life album cover", x: 910, y: 120, w: 250, h: 250, r: -2.5 },
     { src: "pin-05", label: "pinterest feed / 05", alt: "purple glitched figure in the dark", x: 1190, y: 60, w: 310, h: 370, r: 2 },
     { src: "poster-babylon", label: "babylon / 2022", alt: "babylon film poster", x: 1520, y: 70, w: 230, h: 345, r: -1 },
     { src: "pin-06", label: "pinterest feed / 06", alt: "radiohead ok computer collage", x: 1780, y: 40, w: 330, h: 420, r: 1.5 },
     { src: "pin-08", label: "pinterest feed / 08", alt: "neon pink flowers on black", x: 2140, y: 90, w: 220, h: 330, r: -2 },
     { src: "pin-07", label: "pinterest feed / 07", alt: "chessboard seen from above", x: 60, y: 480, w: 290, h: 330, r: 2 },
-    { src: "cover-bully", label: "bully / ye / 2026", alt: "ye, bully album cover", x: 380, y: 500, w: 250, h: 250, r: -1.5 },
     { src: "pin-09", label: "pinterest feed / 09", alt: "rainbow glitch collage", x: 660, y: 450, w: 330, h: 330, r: 1 },
     { src: "poster-12-angry-men", label: "12 angry men / 1957", alt: "12 angry men film poster", x: 1030, y: 460, w: 230, h: 345, r: -2 },
     { src: "pin-10", label: "pinterest feed / 10", alt: "jellyfish in dark water", x: 1290, y: 440, w: 290, h: 390, r: 2 },
     { src: "pin-12", label: "pinterest feed / 12", alt: "neon tokyo street at night", x: 1620, y: 470, w: 310, h: 380, r: -1 },
-    { src: "cover-the-mountain", label: "the mountain / gorillaz / 2026", alt: "gorillaz, the mountain album cover", x: 1970, y: 500, w: 250, h: 250, r: 2 },
     { src: "pin-11", label: "pinterest feed / 11", alt: "torn paper collage with type", x: 40, y: 880, w: 330, h: 310, r: -1 },
     { src: "poster-trainspotting", label: "trainspotting / 1996", alt: "trainspotting film poster", x: 400, y: 870, w: 230, h: 345, r: 2 },
     { src: "pin-13", label: "pinterest feed / 13", alt: "black and white flowers", x: 660, y: 890, w: 290, h: 370, r: 1 },
-    { src: "cover-reality-awaits", label: "reality awaits / the strokes / 2026", alt: "the strokes, reality awaits album cover", x: 1000, y: 920, w: 250, h: 250, r: -2.5 },
     { src: "pin-14", label: "pinterest feed / 14", alt: "two figures with burning eyes", x: 1290, y: 870, w: 290, h: 370, r: -1.5 },
     { src: "pin-15", label: "pinterest feed / 15", alt: "vertical glitch bands", x: 1620, y: 890, w: 330, h: 300, r: 2 },
     { src: "pin-16", label: "pinterest feed / 16", alt: "wired earbuds on a dark surface", x: 1990, y: 870, w: 290, h: 350, r: -1 },
@@ -44,8 +40,20 @@
     { src: "poster-another-round", label: "another round / 2020", alt: "another round film poster", x: 3050, y: 500, w: 230, h: 345, r: 0 },
     { src: "poster-the-departed", label: "the departed / 2006", alt: "the departed film poster", x: 2450, y: 860, w: 230, h: 345, r: -2 },
     { src: "poster-the-banshees-of-inisherin", label: "the banshees of inisherin / 2022", alt: "the banshees of inisherin film poster", x: 2750, y: 840, w: 230, h: 345, r: 0 },
-    { src: "cover-perhaps", label: "perhaps / guns n' roses / 2023", alt: "guns n' roses, perhaps single cover", x: 3050, y: 120, w: 250, h: 250, r: -1.5 },
-    { src: "cover-the-general", label: "the general / guns n' roses / 2023", alt: "guns n' roses, the general single cover", x: 3050, y: 420, w: 250, h: 250, r: 2 },
+    { src: "cover-the-new-abnormal", label: "the new abnormal / the strokes / 2020", alt: "the new abnormal album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-ok-computer", label: "ok computer / radiohead / 1997", alt: "ok computer album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-in-rainbows", label: "in rainbows / radiohead / 2007", alt: "in rainbows album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-blonde", label: "blonde / frank ocean / 2016", alt: "blonde album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-graduation", label: "graduation / kanye west / 2007", alt: "graduation album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-is-this-it", label: "is this it / the strokes / 2001", alt: "is this it album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-my-beautiful-dark-twisted-fantasy", label: "my beautiful dark twisted fantasy / kanye west / 2010", alt: "my beautiful dark twisted fantasy album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-room-on-fire", label: "room on fire / the strokes / 2003", alt: "room on fire album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-either-or", label: "either/or / elliott smith / 1997", alt: "either/or album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-808s-and-heartbreak", label: "808s & heartbreak / kanye west / 2008", alt: "808s & heartbreak album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-ants-from-up-there", label: "ants from up there / black country, new road / 2022", alt: "ants from up there album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-the-dark-side-of-the-moon", label: "the dark side of the moon / pink floyd / 1973", alt: "the dark side of the moon album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-the-glow-pt-2", label: "the glow, pt. 2 / the microphones / 2001", alt: "the glow, pt. 2 album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
+    { src: "cover-bismillah", label: "bismillah / peter cat recording co. / 2019", alt: "bismillah album cover", x: 0, y: 0, w: 250, h: 250, r: 0 },
   ];
   const typeOf = (src) =>
     src.startsWith("poster") ? "poster" : src.startsWith("cover") ? "cover" : "pin";
@@ -54,8 +62,8 @@
   rawItems.forEach((it) => queues[typeOf(it.src)].push(it));
 
   const pattern = [];
-  for (let i = 0; i < 6; i++) pattern.push("pin", "poster", "pin", "cover", "poster", "pin");
-  pattern.push("poster", "pin", "poster");
+  for (let i = 0; i < 6; i++) pattern.push("pin", "poster", "pin", "cover", "poster", "pin", "cover");
+  pattern.push("pin", "poster", "cover", "poster", "cover");
 
   const items = pattern.map((t) => queues[t].shift()).filter(Boolean);
 
@@ -129,12 +137,20 @@
     "poster-the-departed": "https://letterboxd.com/film/the-departed/",
     "poster-another-round": "https://letterboxd.com/film/another-round/",
     "poster-the-banshees-of-inisherin": "https://letterboxd.com/film/the-banshees-of-inisherin/",
-    "cover-loss-of-life": "https://open.spotify.com/album/4436CQF7pmjxkHCaJCGjmt",
-    "cover-the-mountain": "https://open.spotify.com/album/1RvJmGd47lKS4XMXs9j8hD",
-    "cover-bully": "https://open.spotify.com/album/5poA9SAx0Xiz1cf17fWBLS",
-    "cover-reality-awaits": "https://open.spotify.com/album/6x0nmCMjHeuN3rYBmI5Bor",
-    "cover-perhaps": "https://open.spotify.com/album/2CoWZzMwNzNI49Ip5IvSbb",
-    "cover-the-general": "https://open.spotify.com/album/1n3udjedXeuxUh8vU46giM",
+    "cover-the-new-abnormal": "https://open.spotify.com/album/2xkZV2Hl1Omi8rk2D7t5lN",
+    "cover-ok-computer": "https://open.spotify.com/album/6dVIqQ8qmQ5GBnJ9shOYGE",
+    "cover-in-rainbows": "https://open.spotify.com/album/5vkqYmiPBYLaalcmjujWxK",
+    "cover-blonde": "https://open.spotify.com/album/3mH6qwIy9crq0I9YQbOuDf",
+    "cover-graduation": "https://open.spotify.com/album/4SZko61aMnmgvNhfhgTuD3",
+    "cover-is-this-it": "https://open.spotify.com/album/2yNaksHgeMQM9Quse463b5",
+    "cover-my-beautiful-dark-twisted-fantasy": "https://open.spotify.com/album/20r762YmB5HeofjMCiPMLv",
+    "cover-room-on-fire": "https://open.spotify.com/album/3HFbH1loOUbqCyPsLuHLLh",
+    "cover-either-or": "https://open.spotify.com/album/5hryhrT7wEdLnZCbJX9F6L",
+    "cover-808s-and-heartbreak": "https://open.spotify.com/album/3WFTGIO6E3Xh4paEOBY9OU",
+    "cover-ants-from-up-there": "https://open.spotify.com/album/21xp7NdU1ajmO1CX0w2Egd",
+    "cover-the-dark-side-of-the-moon": "https://open.spotify.com/album/4LH4d3cOWNNsVw41Gqt2kv",
+    "cover-the-glow-pt-2": "https://open.spotify.com/album/6QYoRO2sXThCORAifrP4Bl",
+    "cover-bismillah": "https://open.spotify.com/album/3bmnc6GjltS6zD8elSBjCq",
   };
 
   const world = document.querySelector("[data-world]");
