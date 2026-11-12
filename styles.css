@@ -284,6 +284,105 @@ svg {
   }
 }
 
+.unit .frame {
+  fill: none;
+  stroke: rgba(237, 228, 211, 0.24);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 120ms linear;
+}
+.unit.is-near .frame {
+  stroke: var(--chlorine);
+  stroke-opacity: 0.95;
+  stroke-width: 2.2;
+}
+.unit .full-art {
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+.unit.is-near .full-art {
+  opacity: 1;
+}
+.unit .ghost {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 2;
+  stroke-opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+.unit .diag {
+  stroke: var(--chlorine);
+  stroke-width: 1.25;
+  stroke-opacity: 0.32;
+  vector-effect: non-scaling-stroke;
+}
+.unit .bracket {
+  fill: none;
+  stroke: var(--chlorine);
+  stroke-width: 2.2;
+  vector-effect: non-scaling-stroke;
+}
+.unit .dim-ext {
+  stroke: var(--chlorine);
+  stroke-width: 1.1;
+  stroke-opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+.unit .dim {
+  stroke: var(--chlorine);
+  stroke-width: 1.45;
+  stroke-opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+.unit .dim-label {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0;
+  fill: var(--chlorine);
+  paint-order: stroke fill;
+  stroke: rgba(10, 10, 11, 0.9);
+  stroke-width: 2.6px;
+}
+.unit .anchor-dot {
+  fill: rgba(237, 228, 211, 0.42);
+  transition: fill 120ms linear;
+}
+.unit.is-near .anchor-dot {
+  fill: var(--chlorine);
+}
+.unit .anchor-ring {
+  fill: none;
+  stroke: var(--chlorine);
+  stroke-width: 1.7;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+.unit.is-near .anchor-ring {
+  opacity: 0.95;
+  animation: ring-pulse 1.8s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.unit.is-near .ghost {
+  stroke-dasharray: 5 7;
+  animation: ghost-dash 1.2s linear infinite;
+}
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+@keyframes ghost-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
 .unit .id {
   font-family: var(--mono);
   font-size: 9px;
