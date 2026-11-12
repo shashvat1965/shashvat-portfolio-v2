@@ -2,8 +2,7 @@
 
 (() => {
   const NS = "http://www.w3.org/2000/svg";
-  const MAP_H = 99;
-  const WORLD_W = 2463;
+    const WORLD_W = 2463;
   const WORLD_H = 2428;
 
   const rawItems = [
@@ -106,6 +105,16 @@
   });
 
 
+  const swapPositions = (aSrc, bSrc) => {
+    const a = items.find((it) => it.src === aSrc);
+    const b = items.find((it) => it.src === bSrc);
+    if (!a || !b) return;
+    [a.x, b.x] = [b.x, a.x];
+    [a.y, b.y] = [b.y, a.y];
+  };
+  swapPositions("cover-the-new-abnormal", "cover-graduation");
+  swapPositions("poster-babylon", "poster-harakiri");
+
   const LINKS = {
     "pin-01": "https://www.pinterest.com/pin/855754366738322019/",
     "pin-02": "https://www.pinterest.com/pin/616922849003760651/",
@@ -165,12 +174,6 @@
   const readoutTitle = document.querySelector("[data-readout-title]");
   const readoutMeta = document.querySelector("[data-readout-meta]");
   const board = document.querySelector(".board");
-  const mapEl = document.querySelector("[data-map]");
-  const mapSvg = document.querySelector("[data-map-svg]");
-  const mapDots = document.querySelector("[data-map-dots]");
-  const mapView = document.querySelector("[data-map-view]");
-  let manual = null;
-  let mapDrag = false;
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -190,6 +193,15 @@
     const el = document.createElementNS(NS, name);
     for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
     return el;
+  };
+
+  const flickerNames = ["edge-flicker", "edge-flicker-2", "edge-flicker-3"];
+  const randomizeFlicker = (el) => {
+    el.style.animationName = flickerNames[Math.floor(Math.random() * flickerNames.length)];
+    el.style.animationDuration = `${(0.65 + Math.random() * 1.35).toFixed(2)}s`;
+    el.style.animationDelay = `${(-Math.random() * 2.2).toFixed(2)}s`;
+    el.style.animationTimingFunction = "steps(1, end)";
+    el.style.animationIterationCount = "infinite";
   };
 
   const build = () => {
@@ -294,30 +306,13 @@
       const idText = make("text", { class: "id", x: -it.w / 2 + 9, y: -it.h / 2 - 9 });
       idText.textContent = String(i + 1).padStart(3, "0");
       unit.append(idText);
+      unit.querySelectorAll(".frame").forEach(randomizeFlicker);
       worldRig.append(unit);
 
       it._fig = fig;
       it._unit = unit;
       units.push(unit);
     });
-
-    if (mapDots) {
-      mapDots.innerHTML = "";
-      items.forEach((it) => {
-        const r = make("rect", {
-          x: ((it.x / WORLD_W) * 100).toFixed(2),
-          y: ((it.y / WORLD_H) * MAP_H).toFixed(2),
-          width: Math.max(0.5, ((it.w / WORLD_W) * 100)).toFixed(2),
-          height: Math.max(0.5, ((it.h / WORLD_H) * MAP_H)).toFixed(2),
-          fill: it.src.startsWith("poster")
-            ? "rgba(237,228,211,.48)"
-            : it.src.startsWith("cover")
-            ? "rgba(143,227,220,.5)"
-            : "rgba(237,228,211,.2)",
-        });
-        mapDots.append(r);
-      });
-    }
 
     [
       { cx: 520, cy: 360, r: 110 },
@@ -381,6 +376,7 @@
     outlineC.setAttribute("transform", "translate(-1.6 0.9)");
     outlineC.setAttribute("vector-effect", "non-scaling-stroke");
     svg.append(outline, outlineB, outlineC);
+    [outline, outlineB, outlineC].forEach(randomizeFlicker);
     it._fig.appendChild(svg);
     it._neg = { clipShape, outline, outlineB, outlineC };
   };
@@ -501,15 +497,32 @@
     readoutMeta.textContent = `x${pad(pointer.x)} y${pad(pointer.y)} / ${(near[0].d / 100).toFixed(2)}${openHint}`;
   };
 
-  let lines = [];
+  let leaders = [];
+  let tris = [];
   const buildLines = () => {
     if (!cursorRig) return;
     cursorRig.innerHTML = "";
-    lines = Array.from({ length: 6 }, (_, i) => {
-      const line = make("line", { class: i < 3 ? "is-hot" : "" });
+    leaders = [];
+    tris = [];
+    const variants = [
+      { cls: "leader-main", ox: 0, oy: 0 },
+      { cls: "leader-a", ox: 2.4, oy: 1.4 },
+      { cls: "leader-b", ox: -2.4, oy: -1.4 },
+    ];
+    for (let t = 0; t < 3; t++) {
+      variants.forEach((v) => {
+        const line = make("line", { class: v.cls });
+        randomizeFlicker(line);
+        cursorRig.append(line);
+        leaders.push({ line, t, ox: v.ox, oy: v.oy });
+      });
+    }
+    for (let i = 0; i < 3; i++) {
+      const line = make("line", { class: "tri" });
+      randomizeFlicker(line);
       cursorRig.append(line);
-      return line;
-    });
+      tris.push(line);
+    }
   };
 
   const layout = () => {
@@ -523,7 +536,6 @@
 
   const onMove = (e) => {
     if (window.scrollY > board.offsetHeight * 0.6) return;
-    if (!(e.target && e.target.closest && e.target.closest(".map"))) manual = null;
     pointer.x = e.clientX;
     pointer.y = e.clientY;
     pointer.seen = true;
@@ -549,23 +561,9 @@
     const driftY = Math.cos(t * 0.18) * 7;
     const tx = -(rangeX / 2) - (mouse.x - 0.5) * rangeX * 0.94 + driftX;
     const ty = -(rangeY / 2) - (mouse.y - 0.5) * rangeY * 0.94 + driftY;
-    if (manual) {
-      cam.x += (manual.x - cam.x) * 0.13;
-      cam.y += (manual.y - cam.y) * 0.13;
-    } else {
-      cam.x += (tx - cam.x) * 0.06;
-      cam.y += (ty - cam.y) * 0.06;
-    }
+    cam.x += (tx - cam.x) * 0.06;
+    cam.y += (ty - cam.y) * 0.06;
     world.style.transform = `translate3d(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px, 0)`;
-
-    if (mapView) {
-      const vw = (window.innerWidth / WORLD_W) * 100;
-      const vh = (window.innerHeight / WORLD_H) * MAP_H;
-      mapView.setAttribute("x", ((-cam.x / WORLD_W) * 100).toFixed(2));
-      mapView.setAttribute("y", ((-cam.y / WORLD_H) * MAP_H).toFixed(2));
-      mapView.setAttribute("width", vw.toFixed(2));
-      mapView.setAttribute("height", vh.toFixed(2));
-    }
 
     if (pointer.seen && window.scrollY < board.offsetHeight * 0.6) {
       near = nearest();
@@ -604,62 +602,37 @@
         x: items[n.i].x + cam.x + 2,
         y: items[n.i].y + cam.y + 2,
       }));
-      lines.forEach((line, i) => {
-        if (i < 3) {
-          if (dot[i]) {
-            line.setAttribute("x1", pointer.x);
-            line.setAttribute("y1", pointer.y);
-            line.setAttribute("x2", dot[i].x);
-            line.setAttribute("y2", dot[i].y);
-            line.style.display = "";
-          } else line.style.display = "none";
-        } else {
-          const a = dot[i - 3];
-          const b = dot[(i - 2) % Math.max(1, dot.length)];
-          if (a && b) {
-            line.setAttribute("x1", a.x);
-            line.setAttribute("y1", a.y);
-            line.setAttribute("x2", b.x);
-            line.setAttribute("y2", b.y);
-            line.style.display = "";
-          } else line.style.display = "none";
-        }
+      leaders.forEach(({ line, t, ox, oy }) => {
+        if (dot[t]) {
+          line.setAttribute("x1", pointer.x + ox);
+          line.setAttribute("y1", pointer.y + oy);
+          line.setAttribute("x2", dot[t].x + ox);
+          line.setAttribute("y2", dot[t].y + oy);
+          line.style.display = "";
+        } else line.style.display = "none";
+      });
+      tris.forEach((line, i) => {
+        const a = dot[i];
+        const b = dot[(i + 1) % Math.max(1, dot.length)];
+        if (a && b) {
+          line.setAttribute("x1", a.x);
+          line.setAttribute("y1", a.y);
+          line.setAttribute("x2", b.x);
+          line.setAttribute("y2", b.y);
+          line.style.display = "";
+        } else line.style.display = "none";
       });
 
       if (cross) cross.style.opacity = "";
     } else if (cross) {
       cross.classList.remove("is-on");
       items.forEach((it) => it._fig.classList.remove("is-blob"));
-      lines.forEach((l) => (l.style.display = "none"));
+      leaders.forEach((l) => (l.line.style.display = "none"));
+      tris.forEach((l) => (l.style.display = "none"));
     }
 
     requestAnimationFrame(frame);
   };
-
-  const mapTo = (e) => {
-    if (!mapSvg) return;
-    const rect = mapSvg.getBoundingClientRect();
-    const wx = ((e.clientX - rect.left) / rect.width) * WORLD_W;
-    const wy = ((e.clientY - rect.top) / rect.height) * WORLD_H;
-    manual = {
-      x: Math.min(0, Math.max(-(WORLD_W - window.innerWidth), -(wx - window.innerWidth / 2))),
-      y: Math.min(0, Math.max(-(WORLD_H - window.innerHeight), -(wy - window.innerHeight / 2))),
-    };
-  };
-
-  if (mapSvg) {
-    mapSvg.addEventListener("pointerdown", (e) => {
-      mapDrag = true;
-      mapSvg.setPointerCapture(e.pointerId);
-      mapTo(e);
-    });
-    mapSvg.addEventListener("pointermove", (e) => {
-      if (mapDrag) mapTo(e);
-    });
-    ["pointerup", "pointercancel", "lostpointercapture"].forEach((type) =>
-      mapSvg.addEventListener(type, () => (mapDrag = false))
-    );
-  }
 
   const hideOnScroll = () => {
     if (!cross) return;
