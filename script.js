@@ -266,7 +266,6 @@
       card.el.style.transform = "";
       card.s = card.sBase;
     });
-    if (wires) wires.innerHTML = "";
   };
 
   if (field) {
