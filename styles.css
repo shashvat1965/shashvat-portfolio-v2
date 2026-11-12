@@ -159,7 +159,7 @@ svg {
 .piece[role="link"] {
   cursor: pointer;
 }
-.piece.is-hot {
+.piece.is-blob {
   z-index: 7;
 }
 .neg-svg {
@@ -173,7 +173,7 @@ svg {
   opacity: 0;
   transition: opacity 100ms linear;
 }
-.piece.is-hot .neg-svg {
+.piece.is-blob .neg-svg {
   opacity: 1;
 }
 .neg-outline {

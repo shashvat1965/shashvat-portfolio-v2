@@ -152,7 +152,6 @@
   const mapView = document.querySelector("[data-map-view]");
   let manual = null;
   let mapDrag = false;
-  const blob = { x: 0, y: 0, on: false, item: -1 };
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -308,6 +307,77 @@
     });
   };
 
+
+  const ensureNeg = (it, idx) => {
+    if (it._neg) return;
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "neg-svg");
+    svg.setAttribute("viewBox", `0 0 ${it.w} ${it.h}`);
+    svg.setAttribute("preserveAspectRatio", "none");
+    const defs = document.createElementNS(NS, "defs");
+    const clip = document.createElementNS(NS, "clipPath");
+    clip.setAttribute("id", `negclip-${idx}`);
+    const clipShape = document.createElementNS(NS, "path");
+    clip.append(clipShape);
+    const flt = document.createElementNS(NS, "filter");
+    flt.setAttribute("id", `neginv-${idx}`);
+    flt.append(
+      make("feColorMatrix", {
+        type: "matrix",
+        values: "-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0",
+      })
+    );
+    defs.append(clip, flt);
+    svg.append(defs);
+    const image = document.createElementNS(NS, "image");
+    image.setAttribute("x", "0");
+    image.setAttribute("y", "0");
+    image.setAttribute("width", it.w);
+    image.setAttribute("height", it.h);
+    image.setAttribute("preserveAspectRatio", "xMidYMid slice");
+    image.setAttribute("href", `assets/img/${it.src}.jpg`);
+    image.setAttribute("clip-path", `url(#negclip-${idx})`);
+    image.setAttribute("filter", `url(#neginv-${idx})`);
+    svg.append(image);
+    const outline = document.createElementNS(NS, "path");
+    outline.setAttribute("class", "neg-outline");
+    outline.setAttribute("fill", "none");
+    outline.setAttribute("stroke", "rgba(237,228,211,.85)");
+    outline.setAttribute("stroke-width", "1");
+    outline.setAttribute("vector-effect", "non-scaling-stroke");
+    svg.append(outline);
+    it._fig.appendChild(svg);
+    it._neg = { clipShape, outline };
+  };
+
+  const blobPath = (cx, cy, R, tt) => {
+    const N = 20;
+    const pts = [];
+    for (let k = 0; k < N; k++) {
+      const a = (k / N) * Math.PI * 2;
+      const r =
+        R *
+        (1 +
+          0.12 * Math.sin(a * 3 + tt * 1.35) +
+          0.08 * Math.sin(a * 5 - tt * 1.1) +
+          0.04 * Math.sin(a * 7 + tt * 0.8));
+      pts.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
+    }
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for (let k = 0; k < N; k++) {
+      const p0 = pts[(k - 1 + N) % N];
+      const p1 = pts[k];
+      const p2 = pts[(k + 1) % N];
+      const p3 = pts[(k + 2) % N];
+      const c1x = p1.x + (p2.x - p0.x) / 6;
+      const c1y = p1.y + (p2.y - p0.y) / 6;
+      const c2x = p2.x - (p3.x - p1.x) / 6;
+      const c2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+    }
+    return d + " Z";
+  };
+
   const setNear = (list) => {
     const sig = list.map((n) => n.i).join(",");
     if (sig === signature) return;
@@ -357,47 +427,7 @@
         });
       }
 
-      if (!it._neg) {
-        const idx = n.i;
-        const svg = document.createElementNS(NS, "svg");
-        svg.setAttribute("class", "neg-svg");
-        svg.setAttribute("viewBox", `0 0 ${it.w} ${it.h}`);
-        svg.setAttribute("preserveAspectRatio", "none");
-        const defs = document.createElementNS(NS, "defs");
-        const clip = document.createElementNS(NS, "clipPath");
-        clip.setAttribute("id", `negclip-${idx}`);
-        const clipShape = document.createElementNS(NS, "path");
-        clip.append(clipShape);
-        const flt = document.createElementNS(NS, "filter");
-        flt.setAttribute("id", `neginv-${idx}`);
-        flt.append(
-          make("feColorMatrix", {
-            type: "matrix",
-            values: "-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0",
-          })
-        );
-        defs.append(clip, flt);
-        svg.append(defs);
-        const image = document.createElementNS(NS, "image");
-        image.setAttribute("x", "0");
-        image.setAttribute("y", "0");
-        image.setAttribute("width", it.w);
-        image.setAttribute("height", it.h);
-        image.setAttribute("preserveAspectRatio", "xMidYMid slice");
-        image.setAttribute("href", `assets/img/${it.src}.jpg`);
-        image.setAttribute("clip-path", `url(#negclip-${idx})`);
-        image.setAttribute("filter", `url(#neginv-${idx})`);
-        svg.append(image);
-        const outline = document.createElementNS(NS, "path");
-        outline.setAttribute("class", "neg-outline");
-        outline.setAttribute("fill", "none");
-        outline.setAttribute("stroke", "rgba(237,228,211,.85)");
-        outline.setAttribute("stroke-width", "1");
-        outline.setAttribute("vector-effect", "non-scaling-stroke");
-        svg.append(outline);
-        it._fig.appendChild(svg);
-        it._neg = { clipShape, outline };
-      }
+
     });
   };
 
@@ -506,70 +536,32 @@
       near = nearest();
       setNear(near);
 
-      items.forEach((it) => it._fig.classList.remove("is-hot"));
-      const hit = near.find((n) => {
-        const it = items[n.i];
+      items.forEach((it) => it._fig.classList.remove("is-blob"));
+      const tt = now / 1000;
+      const targets = [];
+      items.forEach((it, i) => {
         const left = it.x + cam.x;
         const top = it.y + cam.y;
-        return (
-          pointer.x >= left &&
-          pointer.x <= left + it.w &&
-          pointer.y >= top &&
-          pointer.y <= top + it.h
-        );
+        const dx = Math.max(left - pointer.x, 0, pointer.x - (left + it.w));
+        const dy = Math.max(top - pointer.y, 0, pointer.y - (top + it.h));
+        const dist = Math.hypot(dx, dy);
+        if (dist < 320) targets.push({ it, i, left, top, dist });
       });
-      if (hit) {
-        const it = items[hit.i];
-        const left = it.x + cam.x;
-        const top = it.y + cam.y;
+      targets.sort((a, b) => a.dist - b.dist);
+      targets.slice(0, 5).forEach(({ it, i, left, top, dist }) => {
+        ensureNeg(it, i);
         const lx = pointer.x - left;
         const ly = pointer.y - top;
-        if (blob.item !== hit.i || !blob.on) {
-          blob.item = hit.i;
-          blob.x = lx;
-          blob.y = ly;
-          blob.on = true;
-        }
-        blob.x += (lx - blob.x) * 0.22;
-        blob.y += (ly - blob.y) * 0.22;
-        const tt = now / 1000;
-        const R = Math.min(it.w, it.h) * 0.36;
-        const N = 20;
-        const pts = [];
-        for (let k = 0; k < N; k++) {
-          const a = (k / N) * Math.PI * 2;
-          const r =
-            R *
-            (1 +
-              0.12 * Math.sin(a * 3 + tt * 1.35) +
-              0.08 * Math.sin(a * 5 - tt * 1.1) +
-              0.04 * Math.sin(a * 7 + tt * 0.8));
-          pts.push({
-            x: blob.x + Math.cos(a) * r,
-            y: blob.y + Math.sin(a) * r,
-          });
-        }
-        let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-        for (let k = 0; k < N; k++) {
-          const p0 = pts[(k - 1 + N) % N];
-          const p1 = pts[k];
-          const p2 = pts[(k + 1) % N];
-          const p3 = pts[(k + 2) % N];
-          const c1x = p1.x + (p2.x - p0.x) / 6;
-          const c1y = p1.y + (p2.y - p0.y) / 6;
-          const c2x = p2.x - (p3.x - p1.x) / 6;
-          const c2y = p2.y - (p3.y - p1.y) / 6;
-          d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-        }
-        d += " Z";
-        if (it._neg) {
-          it._neg.clipShape.setAttribute("d", d);
-          it._neg.outline.setAttribute("d", d);
-        }
-        it._fig.classList.add("is-hot");
-      } else {
-        blob.on = false;
-      }
+        const R =
+          Math.min(it.w, it.h) *
+          0.36 *
+          (0.55 + 0.45 * Math.max(0, 1 - dist / 320));
+        if (!it._neg) return;
+        const d = blobPath(lx, ly, R, tt);
+        it._neg.clipShape.setAttribute("d", d);
+        it._neg.outline.setAttribute("d", d);
+        it._fig.classList.add("is-blob");
+      });
 
       updateReadout();
 
@@ -602,6 +594,7 @@
       if (cross) cross.style.opacity = "";
     } else if (cross) {
       cross.classList.remove("is-on");
+      items.forEach((it) => it._fig.classList.remove("is-blob"));
       lines.forEach((l) => (l.style.display = "none"));
     }
 
