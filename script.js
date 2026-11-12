@@ -2,10 +2,11 @@
 
 (() => {
   const NS = "http://www.w3.org/2000/svg";
-  const WORLD_W = 2400;
-  const WORLD_H = 1700;
+  const MAP_H = 79;
+  const WORLD_W = 2576;
+  const WORLD_H = 2036;
 
-  const items = [
+  const rawItems = [
     { src: "pin-01", label: "pinterest feed / 01", alt: "green tree swirling into a spiral", x: 40, y: 60, w: 280, h: 380, r: -2 },
     { src: "poster-past-lives", label: "past lives / 2023", alt: "past lives film poster", x: 340, y: 90, w: 230, h: 345, r: 1.5 },
     { src: "pin-03", label: "pinterest feed / 03", alt: "power line drawn in white on blue", x: 590, y: 40, w: 300, h: 400, r: -1 },
@@ -35,7 +36,106 @@
     { src: "pin-03", label: "pinterest feed / 03b", alt: "power line, second crop", x: 1330, y: 1250, w: 290, h: 370, r: 2, pos: "20% 60%" },
     { src: "pin-08", label: "pinterest feed / 08b", alt: "neon flowers, second crop", x: 1670, y: 1270, w: 310, h: 300, r: -2, pos: "80% 40%" },
     { src: "pin-05", label: "pinterest feed / 05b", alt: "purple figure, second crop", x: 2020, y: 1240, w: 290, h: 340, r: 1, pos: "70% 30%" },
+    { src: "poster-there-will-be-blood", label: "there will be blood / 2007", alt: "there will be blood film poster", x: 2450, y: 80, w: 230, h: 345, r: -1.5 },
+    { src: "poster-whiplash", label: "whiplash / 2014", alt: "whiplash film poster", x: 2750, y: 60, w: 230, h: 345, r: 2 },
+    { src: "poster-perfect-blue", label: "perfect blue / 1997", alt: "perfect blue film poster", x: 3050, y: 100, w: 230, h: 345, r: -2.5 },
+    { src: "poster-in-the-mood-for-love", label: "in the mood for love / 2000", alt: "in the mood for love film poster", x: 2450, y: 470, w: 230, h: 345, r: 1.5 },
+    { src: "poster-oldboy", label: "oldboy / 2003", alt: "oldboy film poster", x: 2750, y: 450, w: 230, h: 345, r: -1 },
+    { src: "poster-project-hail-mary", label: "project hail mary / 2026", alt: "project hail mary film poster", x: 3050, y: 500, w: 230, h: 345, r: 2 },
+    { src: "poster-the-departed", label: "the departed / 2006", alt: "the departed film poster", x: 2450, y: 860, w: 230, h: 345, r: -2 },
+    { src: "poster-django-unchained", label: "django unchained / 2012", alt: "django unchained film poster", x: 2750, y: 840, w: 230, h: 345, r: 1 },
+    { src: "cover-perhaps", label: "perhaps / guns n' roses / 2023", alt: "guns n' roses, perhaps single cover", x: 3050, y: 120, w: 250, h: 250, r: -1.5 },
+    { src: "cover-the-general", label: "the general / guns n' roses / 2023", alt: "guns n' roses, the general single cover", x: 3050, y: 420, w: 250, h: 250, r: 2 },
   ];
+  const typeOf = (src) =>
+    src.startsWith("poster") ? "poster" : src.startsWith("cover") ? "cover" : "pin";
+
+  const queues = { pin: [], poster: [], cover: [] };
+  rawItems.forEach((it) => queues[typeOf(it.src)].push(it));
+
+  const pattern = [];
+  for (let i = 0; i < 6; i++) pattern.push("pin", "poster", "pin", "cover", "poster", "pin");
+  pattern.push("poster", "pin", "poster");
+
+  const items = pattern.map((t) => queues[t].shift()).filter(Boolean);
+
+  const COLS = 7;
+  const CELL_W = 360;
+  const CELL_H = 330;
+  const MARGIN = 28;
+  let col = 0;
+  let row = 0;
+  items.forEach((it, i) => {
+    const type = typeOf(it.src);
+    if (type === "poster") {
+      it.w = 230;
+      it.h = 345;
+    } else if (type === "cover") {
+      it.w = 250;
+      it.h = 250;
+    } else {
+      const variants = [
+        [300, 340],
+        [330, 290],
+        [290, 360],
+        [310, 320],
+      ];
+      [it.w, it.h] = variants[i % variants.length];
+    }
+    const jx = ((i * 37) % 25) - 12;
+    const jy = ((i * 53) % 23) - 11;
+    it.x = MARGIN + col * CELL_W + (CELL_W - it.w) / 2 + jx;
+    it.y = MARGIN + row * CELL_H + (CELL_H - it.h) / 2 + jy;
+    it.r = ((i * 7) % 7) - 3;
+    col += 1;
+    if (col >= COLS) {
+      col = 0;
+      row += 1;
+    }
+  });
+
+
+  const LINKS = {
+    "pin-01": "https://in.pinterest.com/shashvat1965/",
+    "pin-02": "https://in.pinterest.com/shashvat1965/",
+    "pin-03": "https://in.pinterest.com/shashvat1965/",
+    "pin-04": "https://in.pinterest.com/shashvat1965/",
+    "pin-05": "https://in.pinterest.com/shashvat1965/",
+    "pin-06": "https://in.pinterest.com/shashvat1965/",
+    "pin-07": "https://in.pinterest.com/shashvat1965/",
+    "pin-08": "https://in.pinterest.com/shashvat1965/",
+    "pin-09": "https://in.pinterest.com/shashvat1965/",
+    "pin-10": "https://in.pinterest.com/shashvat1965/",
+    "pin-11": "https://in.pinterest.com/shashvat1965/",
+    "pin-12": "https://in.pinterest.com/shashvat1965/",
+    "pin-13": "https://in.pinterest.com/shashvat1965/",
+    "pin-14": "https://in.pinterest.com/shashvat1965/",
+    "pin-15": "https://in.pinterest.com/shashvat1965/",
+    "pin-16": "https://in.pinterest.com/shashvat1965/",
+    "pin-03b": "https://in.pinterest.com/shashvat1965/",
+    "pin-05b": "https://in.pinterest.com/shashvat1965/",
+    "pin-08b": "https://in.pinterest.com/shashvat1965/",
+    "poster-past-lives": "https://letterboxd.com/film/past-lives/",
+    "poster-12-angry-men": "https://letterboxd.com/film/12-angry-men/",
+    "poster-babylon": "https://letterboxd.com/film/babylon-2022/",
+    "poster-trainspotting": "https://letterboxd.com/film/trainspotting/",
+    "poster-schindlers-list": "https://letterboxd.com/film/schindlers-list/",
+    "poster-obsession": "https://letterboxd.com/film/obsession-2025/",
+    "poster-there-will-be-blood": "https://letterboxd.com/film/there-will-be-blood/",
+    "poster-whiplash": "https://letterboxd.com/film/whiplash-2014/",
+    "poster-perfect-blue": "https://letterboxd.com/film/perfect-blue/",
+    "poster-in-the-mood-for-love": "https://letterboxd.com/film/in-the-mood-for-love/",
+    "poster-oldboy": "https://letterboxd.com/film/oldboy/",
+    "poster-the-departed": "https://letterboxd.com/film/the-departed/",
+    "poster-django-unchained": "https://letterboxd.com/film/django-unchained/",
+    "poster-project-hail-mary": "https://letterboxd.com/film/project-hail-mary/",
+    "cover-loss-of-life": "https://open.spotify.com/album/4436CQF7pmjxkHCaJCGjmt",
+    "cover-the-mountain": "https://open.spotify.com/album/1RvJmGd47lKS4XMXs9j8hD",
+    "cover-bully": "https://open.spotify.com/album/5poA9SAx0Xiz1cf17fWBLS",
+    "cover-reality-awaits": "https://open.spotify.com/album/6x0nmCMjHeuN3rYBmI5Bor",
+    "cover-perhaps": "https://open.spotify.com/album/2CoWZzMwNzNI49Ip5IvSbb",
+    "cover-the-general": "https://open.spotify.com/album/1n3udjedXeuxUh8vU46giM",
+  };
 
   const world = document.querySelector("[data-world]");
   const worldRig = document.querySelector("[data-world-rig]");
@@ -46,6 +146,12 @@
   const readoutTitle = document.querySelector("[data-readout-title]");
   const readoutMeta = document.querySelector("[data-readout-meta]");
   const board = document.querySelector(".board");
+  const mapEl = document.querySelector("[data-map]");
+  const mapSvg = document.querySelector("[data-map-svg]");
+  const mapDots = document.querySelector("[data-map-dots]");
+  const mapView = document.querySelector("[data-map-view]");
+  let manual = null;
+  let mapDrag = false;
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -71,7 +177,23 @@
     if (!world || !worldRig) return;
     worldRig.innerHTML = "";
     items.forEach((it, i) => {
+      const link = LINKS[it.src];
       const fig = document.createElement("figure");
+      if (link) {
+        fig.setAttribute("role", "link");
+        fig.tabIndex = 0;
+        fig.setAttribute("aria-label", `${it.label}, opens source`);
+        fig.dataset.href = link;
+        fig.addEventListener("click", () => {
+          window.open(link, "_blank", "noopener,noreferrer");
+        });
+        fig.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            window.open(link, "_blank", "noopener,noreferrer");
+          }
+        });
+      }
       fig.className = "piece";
       fig.classList.add(
         it.src.startsWith("poster")
@@ -95,42 +217,88 @@
       img.src = `assets/img/${it.src}.jpg`;
       if (img.complete) fig.classList.add("is-loaded");
       fig.appendChild(img);
+      const scan = document.createElement("span");
+      scan.className = "scan";
+      fig.appendChild(scan);
+      const scanline = document.createElement("span");
+      scanline.className = "scanline";
+      fig.appendChild(scanline);
       world.appendChild(fig);
 
-      const unit = make("g", { class: "unit" });
-      const frame = make("g", {
+      const unit = make("g", {
+        class: "unit",
         transform: `translate(${it.x + it.w / 2} ${it.y + it.h / 2}) rotate(${it.r})`,
       });
-      frame.append(make("rect", {
-        x: -it.w / 2 - 5,
-        y: -it.h / 2 - 5,
-        width: it.w + 10,
-        height: it.h + 10,
+      const full = make("g", { class: "full-art" });
+
+      full.append(make("rect", {
+        class: "ghost",
+        x: -it.w / 2 + 4,
+        y: -it.h / 2 - 4,
+        width: it.w,
+        height: it.h,
       }));
-      frame.append(make("circle", { class: "dot", cx: -it.w / 2 - 5, cy: -it.h / 2 - 5, r: 2.4 }));
-      if (i % 3 === 0) {
-        frame.append(make("line", {
-          class: "diag",
-          x1: -it.w / 2 - 5,
-          y1: -it.h / 2 - 5,
-          x2: it.w / 2 + 5,
-          y2: it.h / 2 + 5,
-        }));
-      }
-      unit.append(frame);
-      const num = make("text", {
-        class: "num",
-        x: it.x + 2,
-        y: it.y - 8,
-      });
-      num.textContent = String(i + 1).padStart(3, "0");
-      unit.append(num);
+
+      const dimY = -it.h / 2 - 22;
+      full.append(
+        make("line", { class: "dim-ext", x1: -it.w / 2, y1: -it.h / 2 - 4, x2: -it.w / 2, y2: -it.h / 2 - 27 }),
+        make("line", { class: "dim-ext", x1: it.w / 2, y1: -it.h / 2 - 4, x2: it.w / 2, y2: -it.h / 2 - 27 }),
+        make("line", { class: "dim", x1: -it.w / 2, y1: dimY, x2: it.w / 2, y2: dimY }),
+        make("line", { class: "dim", x1: -it.w / 2, y1: dimY - 4, x2: -it.w / 2, y2: dimY + 4 }),
+        make("line", { class: "dim", x1: it.w / 2, y1: dimY - 4, x2: it.w / 2, y2: dimY + 4 })
+      );
+      const dimLabel = make("text", { class: "dim-label", x: 0, y: dimY - 6, "text-anchor": "middle" });
+      dimLabel.textContent = `${Math.round(it.w)} × ${Math.round(it.h)}`;
+      full.append(dimLabel);
+
+      full.append(
+        make("line", { class: "diag", x1: -it.w / 2 + 1, y1: -it.h / 2 + 1, x2: it.w / 2 - 1, y2: it.h / 2 - 1 }),
+        make("line", { class: "diag", x1: it.w / 2 - 1, y1: -it.h / 2 + 1, x2: -it.w / 2 + 1, y2: it.h / 2 - 1 })
+      );
+
+      const arm = 20;
+      const out = 3;
+      [
+        `M${-it.w / 2 - out} ${-it.h / 2 + arm} V${-it.h / 2 - out} H${-it.w / 2 + arm}`,
+        `M${it.w / 2 - arm} ${-it.h / 2 - out} H${it.w / 2 + out} V${-it.h / 2 + arm}`,
+        `M${it.w / 2 + out} ${it.h / 2 - arm} V${it.h / 2 + out} H${it.w / 2 - arm}`,
+        `M${-it.w / 2 + arm} ${it.h / 2 + out} H${-it.w / 2 - out} V${it.h / 2 - arm}`,
+      ].forEach((d) => full.append(make("path", { class: "bracket", d })));
+
+      unit.append(full);
+      unit.append(
+        make("rect", { class: "frame", x: -it.w / 2, y: -it.h / 2, width: it.w, height: it.h }),
+        make("circle", { class: "anchor-ring", cx: -it.w / 2, cy: -it.h / 2, r: 5.5 }),
+        make("circle", { class: "anchor-dot", cx: -it.w / 2, cy: -it.h / 2, r: 2.1 })
+      );
+
+      const idText = make("text", { class: "id", x: -it.w / 2 + 9, y: -it.h / 2 - 9 });
+      idText.textContent = String(i + 1).padStart(3, "0");
+      unit.append(idText);
       worldRig.append(unit);
 
       it._fig = fig;
       it._unit = unit;
       units.push(unit);
     });
+
+    if (mapDots) {
+      mapDots.innerHTML = "";
+      items.forEach((it) => {
+        const r = make("rect", {
+          x: ((it.x / WORLD_W) * 100).toFixed(2),
+          y: ((it.y / WORLD_H) * MAP_H).toFixed(2),
+          width: Math.max(0.5, ((it.w / WORLD_W) * 100)).toFixed(2),
+          height: Math.max(0.5, ((it.h / WORLD_H) * MAP_H)).toFixed(2),
+          fill: it.src.startsWith("poster")
+            ? "rgba(237,228,211,.48)"
+            : it.src.startsWith("cover")
+            ? "rgba(143,227,220,.5)"
+            : "rgba(237,228,211,.2)",
+        });
+        mapDots.append(r);
+      });
+    }
 
     [
       { cx: 520, cy: 360, r: 110 },
@@ -150,8 +318,14 @@
       it._unit.classList.remove("is-near");
     });
     list.forEach((n) => {
-      items[n.i]._fig.classList.add("is-near");
-      items[n.i]._unit.classList.add("is-near");
+      const it = items[n.i];
+      it._fig.classList.add("is-near");
+      it._unit.classList.add("is-near");
+      const scan = it._fig.querySelector(".scan");
+      if (scan && !scan.style.backgroundImage) {
+        scan.style.backgroundImage = `url(assets/img/${it.src}.jpg)`;
+        scan.style.backgroundPosition = it.pos || "50% 50%";
+      }
     });
   };
 
@@ -185,7 +359,9 @@
       readoutIndex.textContent = `fig / ${String(near[0].i + 1).padStart(3, "0")}`;
       readoutTitle.textContent = top.label;
     }
-    readoutMeta.textContent = `x${pad(pointer.x)} y${pad(pointer.y)} / ${(near[0].d / 100).toFixed(2)}`;
+    const src = items[near[0].i].src;
+    const openHint = LINKS[src] ? " · click to open" : "";
+    readoutMeta.textContent = `x${pad(pointer.x)} y${pad(pointer.y)} / ${(near[0].d / 100).toFixed(2)}${openHint}`;
   };
 
   let lines = [];
@@ -210,6 +386,7 @@
 
   const onMove = (e) => {
     if (window.scrollY > board.offsetHeight * 0.6) return;
+    if (!(e.target && e.target.closest && e.target.closest(".map"))) manual = null;
     pointer.x = e.clientX;
     pointer.y = e.clientY;
     pointer.seen = true;
@@ -235,9 +412,23 @@
     const driftY = Math.cos(t * 0.18) * 7;
     const tx = -(rangeX / 2) - (mouse.x - 0.5) * rangeX * 0.94 + driftX;
     const ty = -(rangeY / 2) - (mouse.y - 0.5) * rangeY * 0.94 + driftY;
-    cam.x += (tx - cam.x) * 0.06;
-    cam.y += (ty - cam.y) * 0.06;
+    if (manual) {
+      cam.x += (manual.x - cam.x) * 0.13;
+      cam.y += (manual.y - cam.y) * 0.13;
+    } else {
+      cam.x += (tx - cam.x) * 0.06;
+      cam.y += (ty - cam.y) * 0.06;
+    }
     world.style.transform = `translate3d(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px, 0)`;
+
+    if (mapView) {
+      const vw = (window.innerWidth / WORLD_W) * 100;
+      const vh = (window.innerHeight / WORLD_H) * MAP_H;
+      mapView.setAttribute("x", ((-cam.x / WORLD_W) * 100).toFixed(2));
+      mapView.setAttribute("y", ((-cam.y / WORLD_H) * MAP_H).toFixed(2));
+      mapView.setAttribute("width", vw.toFixed(2));
+      mapView.setAttribute("height", vh.toFixed(2));
+    }
 
     if (pointer.seen && window.scrollY < board.offsetHeight * 0.6) {
       near = nearest();
@@ -278,6 +469,31 @@
 
     requestAnimationFrame(frame);
   };
+
+  const mapTo = (e) => {
+    if (!mapSvg) return;
+    const rect = mapSvg.getBoundingClientRect();
+    const wx = ((e.clientX - rect.left) / rect.width) * WORLD_W;
+    const wy = ((e.clientY - rect.top) / rect.height) * WORLD_H;
+    manual = {
+      x: Math.min(0, Math.max(-(WORLD_W - window.innerWidth), -(wx - window.innerWidth / 2))),
+      y: Math.min(0, Math.max(-(WORLD_H - window.innerHeight), -(wy - window.innerHeight / 2))),
+    };
+  };
+
+  if (mapSvg) {
+    mapSvg.addEventListener("pointerdown", (e) => {
+      mapDrag = true;
+      mapSvg.setPointerCapture(e.pointerId);
+      mapTo(e);
+    });
+    mapSvg.addEventListener("pointermove", (e) => {
+      if (mapDrag) mapTo(e);
+    });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((type) =>
+      mapSvg.addEventListener(type, () => (mapDrag = false))
+    );
+  }
 
   const hideOnScroll = () => {
     if (!cross) return;

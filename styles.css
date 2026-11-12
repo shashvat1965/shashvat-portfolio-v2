@@ -5,7 +5,7 @@
 :root {
   --pitch: #0a0a0b;
   --bone: #ede4d3;
-  --ember: #f04a18;
+  --ember: #2f5bff;
   --chlorine: #8fe3dc;
   --acid: #cbea3f;
   --flush: #f24e86;
@@ -29,6 +29,7 @@ body {
   background: var(--pitch);
   color: var(--bone);
   font-family: var(--display);
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -113,15 +114,7 @@ svg {
   background: var(--pitch);
   isolation: isolate;
 }
-.board::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 120px;
-  background: linear-gradient(var(--pitch) 12%, transparent 100%);
-  z-index: 20;
-  pointer-events: none;
-}
+
 .world {
   position: absolute;
   top: 0;
@@ -164,11 +157,62 @@ svg {
   pointer-events: none;
   transition: opacity 150ms ease;
 }
+.piece[role="link"] {
+  cursor: pointer;
+}
+.piece .scan {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  pointer-events: none;
+  filter: saturate(1.35) contrast(1.1) brightness(1.06);
+  mix-blend-mode: normal;
+}
+.piece.is-near .scan {
+  opacity: 0.9;
+  animation: scan-sweep 3.2s linear infinite;
+}
+.piece .scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 2;
+  height: 1px;
+  background: #6ea0ff;
+  box-shadow: 0 0 10px rgba(47, 91, 255, 0.9), 0 0 24px rgba(47, 91, 255, 0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+.piece.is-near .scanline {
+  opacity: 0.95;
+  animation: line-sweep 3.2s linear infinite;
+}
+
+@keyframes scan-sweep {
+  0% {
+    clip-path: inset(0 0 88% 0);
+    transform: translateX(0);
+  }
+  12% {
+    transform: translateX(7px);
+  }
+  18% {
+    transform: translateX(-5px);
+  }
+  100% {
+    clip-path: inset(88% 0 0 0);
+    transform: translateX(0);
+  }
+}
 .piece.is-near {
   z-index: 6;
   box-shadow:
     0 0 0 1px var(--chlorine),
-    5px 0 0 rgba(240, 74, 24, 0.5),
+    5px 0 0 rgba(47, 91, 255, 0.5),
     -5px 0 0 rgba(143, 227, 220, 0.5);
 }
 .piece.is-near img {
@@ -189,35 +233,126 @@ svg {
   pointer-events: none;
   z-index: 8;
 }
-.unit rect {
+.unit .frame {
   fill: none;
   stroke: rgba(237, 228, 211, 0.24);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
+  transition: stroke 120ms linear;
 }
-.unit .dot {
-  fill: rgba(237, 228, 211, 0.45);
-}
-.unit .num {
-  fill: rgba(237, 228, 211, 0.5);
-  font-family: var(--mono);
-  font-size: 8.5px;
-  letter-spacing: 0.04em;
-}
-.unit.is-near rect {
+.unit.is-near .frame {
   stroke: var(--chlorine);
   stroke-opacity: 0.95;
   stroke-width: 1.25;
 }
-.unit.is-near .dot {
-  fill: var(--bone);
+.unit .full-art {
+  opacity: 0;
+  transition: opacity 120ms linear;
 }
-.unit.is-near .num {
-  fill: var(--bone);
+.unit.is-near .full-art {
+  opacity: 1;
+}
+.unit .ghost {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 1.2;
+  stroke-opacity: 0.55;
+  vector-effect: non-scaling-stroke;
 }
 .unit .diag {
-  stroke: rgba(143, 227, 220, 0.4);
-  stroke-width: 1;
+  stroke: var(--chlorine);
+  stroke-width: 0.8;
+  stroke-opacity: 0.32;
+  vector-effect: non-scaling-stroke;
+}
+.unit .bracket {
+  fill: none;
+  stroke: var(--chlorine);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.unit .dim-ext {
+  stroke: var(--chlorine);
+  stroke-width: 0.7;
+  stroke-opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+.unit .dim {
+  stroke: var(--chlorine);
+  stroke-width: 0.85;
+  stroke-opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+.unit .dim-label {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0;
+  fill: var(--chlorine);
+  paint-order: stroke fill;
+  stroke: rgba(10, 10, 11, 0.9);
+  stroke-width: 2.6px;
+}
+.unit .anchor-dot {
+  fill: rgba(237, 228, 211, 0.42);
+  transition: fill 120ms linear;
+}
+.unit.is-near .anchor-dot {
+  fill: var(--chlorine);
+}
+.unit .anchor-ring {
+  fill: none;
+  stroke: var(--chlorine);
+  stroke-width: 1.1;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+.unit.is-near .anchor-ring {
+  opacity: 0.95;
+  animation: ring-pulse 1.8s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.unit.is-near .ghost {
+  stroke-dasharray: 5 7;
+  animation: ghost-dash 1.2s linear infinite;
+}
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+@keyframes ghost-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+@keyframes line-sweep {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+.unit .id {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+  fill: rgba(237, 228, 211, 0.38);
+  paint-order: stroke fill;
+  stroke: rgba(10, 10, 11, 0.82);
+  stroke-width: 2.4px;
+  transition: fill 120ms linear;
+}
+.unit.is-near .id {
+  fill: var(--bone);
+  font-weight: 700;
 }
 .ring {
   fill: none;
@@ -290,7 +425,7 @@ svg {
   white-space: nowrap;
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   color: var(--chlorine);
   text-shadow: 0 1px 6px #000;
 }
@@ -298,38 +433,67 @@ svg {
 /* ---------- hud ---------- */
 .hud {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 13px;
+  left: 13px;
+  right: 13px;
   z-index: 25;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 18px;
-  padding: 15px var(--pad);
+  gap: 12px;
+  pointer-events: none;
   font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(237, 228, 211, 0.62);
-  border-bottom: 1px solid rgba(237, 228, 211, 0.16);
+  font-size: 8px;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+.hud__id {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  background: var(--pitch);
+  border: 1px solid rgba(237, 228, 211, 0.28);
+  color: var(--bone);
+}
+.hud__mark {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #1a1a1a;
 }
 .hud__name {
-  color: var(--bone);
+  font-family: var(--display);
   font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: lowercase;
 }
-.hud__mid {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+.hud__sub {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0;
+  color: rgba(237, 228, 211, 0.5);
+  border-left: 1px solid rgba(237, 228, 211, 0.25);
+  padding-left: 9px;
 }
 .hud__nav {
+  pointer-events: auto;
   display: flex;
-  gap: 16px;
-  align-items: center;
+  gap: 6px;
 }
-.hud__nav a:hover,
-.hud__name:hover {
+.hud__nav a {
+  padding: 7px 9px;
+  background: var(--pitch);
+  border: 1px solid rgba(237, 228, 211, 0.28);
+  color: rgba(237, 228, 211, 0.78);
+  font-size: 8px;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+.hud__nav a:hover {
   color: var(--ember);
 }
 .hud__nav i {
@@ -337,58 +501,84 @@ svg {
   color: var(--ember);
 }
 
-/* ---------- readout ---------- */
-.readout {
+/* ---------- minimap ---------- */
+.map {
   position: absolute;
-  left: var(--pad);
-  bottom: 22px;
-  z-index: 25;
-  max-width: min(560px, 62vw);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 9px 11px;
-  background: rgba(10, 10, 11, 0.55);
-  text-shadow: 0 1px 12px rgba(10, 10, 11, 0.9);
-}
-.readout__index {
+  right: 14px;
+  bottom: 44px;
+  z-index: 24;
+  width: 164px;
+  padding: 7px 8px 6px;
+  background: rgba(10, 10, 11, 0.82);
+  border: 1px solid rgba(237, 228, 211, 0.28);
   font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--chlorine);
+  font-size: 7px;
+  letter-spacing: 0;
+  color: rgba(237, 228, 211, 0.55);
+  text-transform: lowercase;
 }
-.readout__title {
+.map__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.map__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: rgba(237, 228, 211, 0.04);
+}
+.map__view {
+  fill: rgba(47, 91, 255, 0.16);
+  stroke: var(--ember);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.map__hint {
+  margin-top: 5px;
+  color: rgba(237, 228, 211, 0.35);
+}
+
+/* ---------- status ---------- */
+.status {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 var(--pad);
+  background: var(--pitch);
+  border-top: 1px solid rgba(237, 228, 211, 0.2);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0;
+  color: rgba(237, 228, 211, 0.5);
+  text-transform: lowercase;
+}
+.status__id {
+  color: var(--chlorine);
+  white-space: nowrap;
+}
+.status__title {
   font-family: var(--display);
-  font-variation-settings: "wdth" 64, "wght" 850;
-  font-weight: 850;
-  font-size: clamp(1.3rem, 2.2vw, 2rem);
-  line-height: 0.95;
-  letter-spacing: -0.01em;
+  font-variation-settings: "wdth" 100, "wght" 500;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0;
   text-transform: lowercase;
   color: var(--bone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.readout__meta {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  color: rgba(237, 228, 211, 0.72);
-}
-.hint {
-  position: absolute;
-  right: var(--pad);
-  bottom: 26px;
-  z-index: 25;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(237, 228, 211, 0.65);
-  text-shadow: 0 1px 8px rgba(10, 10, 11, 0.9);
-}
-.hint span {
-  color: var(--ember);
-  margin: 0 4px;
+.status__meta {
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 /* ---------- about ---------- */
@@ -396,26 +586,27 @@ svg {
   background: var(--bone);
   color: var(--pitch);
   border-top: 2px solid var(--ember);
-  padding: clamp(34px, 6vw, 64px) var(--pad) 24px;
+  padding: clamp(30px, 5vw, 56px) var(--pad) 22px;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.8fr);
-  gap: 22px clamp(24px, 5vw, 80px);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr);
+  gap: 22px clamp(24px, 6vw, 80px);
   position: relative;
   z-index: 1;
+  text-transform: lowercase;
 }
 .about__kicker {
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0;
   color: rgba(10, 10, 11, 0.55);
   margin-bottom: 10px;
 }
 .about__line {
-  max-width: 34ch;
+  max-width: 38ch;
   font-size: clamp(1.15rem, 1.7vw, 1.55rem);
   line-height: 1.35;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 .about__line a {
   border-bottom: 1px solid var(--ember);
@@ -425,13 +616,13 @@ svg {
   color: var(--pitch);
 }
 .about__tiny {
-  max-width: 56ch;
+  max-width: 58ch;
   margin-top: 14px;
   font-family: var(--mono);
   font-size: 10px;
   line-height: 1.7;
-  letter-spacing: 0.01em;
-  color: rgba(10, 10, 11, 0.74);
+  letter-spacing: 0;
+  color: rgba(10, 10, 11, 0.7);
 }
 .about__links {
   display: flex;
@@ -440,7 +631,7 @@ svg {
   gap: 7px;
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
 }
 .about__links a {
   border-bottom: 1px solid transparent;
@@ -452,14 +643,13 @@ svg {
 }
 .about__colophon {
   grid-column: 1 / -1;
-  margin-top: clamp(18px, 4vw, 36px);
+  margin-top: clamp(18px, 4vw, 34px);
   padding-top: 12px;
-  border-top: 1px solid rgba(10, 10, 11, 0.3);
+  border-top: 1px solid rgba(10, 10, 11, 0.28);
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 11, 0.74);
+  letter-spacing: 0;
+  color: rgba(10, 10, 11, 0.62);
 }
 
 /* ---------- fallback ---------- */
@@ -532,16 +722,16 @@ svg {
   .world-rig,
   .cursor-rig,
   .cross,
-  .readout,
-  .hint {
+  .status,
+  .map {
     display: none !important;
   }
   .hud {
-    position: absolute;
-    background: var(--pitch);
-    border-bottom: 1px solid rgba(237, 228, 211, 0.16);
+    top: 10px;
+    left: 10px;
+    right: 10px;
   }
-  .hud__mid {
+  .hud__sub {
     display: none;
   }
   .about {
@@ -561,13 +751,12 @@ svg {
 }
 
 @media (max-width: 420px) {
-  .hud {
-    font-size: 8px;
-    letter-spacing: 0.08em;
-    padding: 13px 10px;
+  .hud__name {
+    font-size: 10px;
   }
-  .hud__nav {
-    gap: 10px;
+  .hud__nav a {
+    padding: 6px 7px;
+    font-size: 7px;
   }
 }
 
@@ -583,5 +772,15 @@ svg {
   }
   .piece img {
     transition: none;
+  }
+  .piece .scan,
+  .piece .scanline,
+  .unit.is-near .ghost,
+  .unit.is-near .anchor-ring {
+    animation: none;
+  }
+  .piece .scan,
+  .piece .scanline {
+    opacity: 0;
   }
 }
