@@ -15,16 +15,22 @@
       content="Recording pipelines, video tooling, and macOS utilities that go one layer below the app."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="assets/og.png" />
+    <meta property="og:site_name" content="Shashvat Singh" />
+    <meta property="og:url" content="https://shashvat1965.github.io/shashvat-portfolio/" />
+    <meta property="og:image" content="https://shashvat1965.github.io/shashvat-portfolio/assets/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="assets/og.png" />
+    <meta name="twitter:title" content="Shashvat Singh — Founding Engineer, Clueso" />
+    <meta property="og:image:alt" content="Shashvat Singh — founding engineer at Clueso" />
+    <meta name="twitter:image" content="https://shashvat1965.github.io/shashvat-portfolio/assets/og.png" />
+    <link rel="canonical" href="https://shashvat1965.github.io/shashvat-portfolio/" />
+    <meta name="author" content="Shashvat Singh" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@75..125,400..900&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap"
       rel="stylesheet"
     />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -67,14 +73,14 @@
       </nav>
     </header>
 
-    <main id="main">
+    <main id="main" tabindex="-1">
       <section class="hero" data-take="start">
         <div class="viewfinder" aria-hidden="true">
           <span></span><span></span><span></span><span></span>
         </div>
 
         <div class="hero__top">
-          <span><span data-timecode>00:00:00</span> &nbsp;·&nbsp; take 01</span>
+          <span><span data-timecode>00:00:00</span> &nbsp;·&nbsp; recording</span>
           <span class="rec"><span class="rec__dot"></span> rec</span>
         </div>
 
@@ -113,7 +119,7 @@
             <p class="take__when">2024 — now</p>
             <h3 class="take__role">
               Founding Engineer
-              <span class="co">Clueso (YC W23)</span>
+              <span class="co"><a href="https://clueso.io" target="_blank" rel="noreferrer">Clueso (YC W23)</a></span>
             </h3>
             <div class="take__body">
               <p>
@@ -121,8 +127,8 @@
                 Chrome extension end to end, built core modules of the video
                 editor, shipped an AI copilot for the docs generator, and
                 rebuilt our MCP server after agents kept losing the thread.
-                Lately: Panther, ClueCode, the desktop recorder, and a handheld
-                called ClueBoy.
+                Lately: Panther, ClueCode, the desk recorder, and a handheld called
+                ClueBoy.
               </p>
               <ul class="tags">
                 <li>TypeScript</li>
@@ -142,10 +148,10 @@
             </h3>
             <div class="take__body">
               <p>
-                Studied while shipping. Built the official Oasis fest app
-                (₹1.6 crore in revenue, 5,000+ users) and a ticket scanner that
-                handled 3,000 people under load. Spent the rest of the time on
-                emulators and interpreters.
+                Studied while shipping. Built the Oasis fest app — ₹1.6 crore of tickets and merch sold
+                through it, 5,000+ users — and a ticket scanner that handled
+                3,000 people under load. Spent the rest of the time on emulators
+                and interpreters.
               </p>
               <ul class="tags">
                 <li>Flutter</li>
@@ -165,7 +171,7 @@
       <section class="section" id="projects" data-take="projects">
         <div class="section-head">
           <p class="tc">00:01:12:00</p>
-          <h2>things i build when nobody asks.</h2>
+          <h2>selected builds.</h2>
         </div>
 
         <div class="shelf">
@@ -189,14 +195,14 @@
               <circle cx="330" cy="150" r="7" fill="#f3f1eb" />
             </g></svg>
             <span class="tile__no">01 / macOS</span>
-            <span class="tile__foot">
-              <span class="tile__name">SlideSense</span>
+            <div class="tile__foot">
+              <h3 class="tile__name">SlideSense</h3>
               <span class="tile__desc">Trackpad edges as volume and brightness sliders. 140 stars and 397 downloads in ten days.</span>
-              <span class="tile__meta"><span>Swift · MIT</span><span>2026</span></span>
-            </span>
+              <span class="tile__meta"><span>Swift · MIT</span><span>Nov 2026</span></span>
+            </div>
           </a>
 
-          <article class="tile tile--ink">
+          <article class="tile tile--ink tile--internal">
             <svg class="tile__art" viewBox="0 0 400 500" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><g transform="translate(0,-30)">
               <circle cx="200" cy="180" r="72" fill="none" stroke="#e8e5de" stroke-opacity=".4" stroke-width="2" />
               <path d="M182 148l52 32-52 32z" fill="#e8e5de" />
@@ -211,15 +217,15 @@
               <path d="M262 300v86" stroke="#c92f1d" stroke-width="3" />
               <path d="M262 286l8 14h-16z" fill="#c92f1d" />
             </g></svg>
-            <span class="tile__no">02 / clueso</span>
-            <span class="tile__foot">
-              <span class="tile__name">Panther</span>
-              <span class="tile__desc">Make videos by talking to an agent, on your Mac. Claude Code writes the video as HTML, GSAP and all.</span>
+            <span class="tile__no">02 / clueso · internal</span>
+            <div class="tile__foot">
+              <h3 class="tile__name">Panther</h3>
+              <span class="tile__desc">Describe the video you want; an agent writes and renders it on your Mac. Timeline, inspector, versions.</span>
               <span class="tile__meta"><span>Electron · React</span><span>2026</span></span>
-            </span>
+            </div>
           </article>
 
-          <article class="tile">
+          <article class="tile tile--internal">
             <svg class="tile__art" viewBox="0 0 400 500" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><g transform="translate(0,-35)">
               <rect x="70" y="120" width="260" height="250" rx="28" fill="none" stroke="#14120f" stroke-opacity=".55" stroke-width="2" />
               <rect x="100" y="150" width="200" height="120" rx="8" fill="#14120f" />
@@ -239,12 +245,12 @@
                 <rect x="132" y="346" width="4" height="8" />
               </g>
             </g></svg>
-            <span class="tile__no">03 / hardware</span>
-            <span class="tile__foot">
-              <span class="tile__name">ClueBoy</span>
+            <span class="tile__no">03 / hardware · in-house</span>
+            <div class="tile__foot">
+              <h3 class="tile__name">ClueBoy</h3>
               <span class="tile__desc">A Clueso-themed handheld: custom board, 2-inch IPS, 3D-printed case. Built in a day.</span>
               <span class="tile__meta"><span>C++ · RP2350</span><span>2026</span></span>
-            </span>
+            </div>
           </article>
 
           <a
@@ -274,11 +280,11 @@
               </g>
             </g></svg>
             <span class="tile__no">04 / campus</span>
-            <span class="tile__foot">
-              <span class="tile__name">Oasis Fest App</span>
-              <span class="tile__desc">Food, concert tickets and merch for the campus fest. ₹1.6 crore in revenue, 5,000+ users.</span>
+            <div class="tile__foot">
+              <h3 class="tile__name">Oasis Fest App</h3>
+              <span class="tile__desc">Food, concert tickets and merch for the campus fest. ₹1.6 crore sold through it, 5,000+ users.</span>
               <span class="tile__meta"><span>Flutter · App Store</span><span>2022</span></span>
-            </span>
+            </div>
           </a>
 
           <a
@@ -298,14 +304,14 @@
               <path d="M50 90v330M360 90v330" stroke="#14120f" stroke-opacity=".2" />
             </g></svg>
             <span class="tile__no">05 / macOS</span>
-            <span class="tile__foot">
-              <span class="tile__name">Lattice</span>
+            <div class="tile__foot">
+              <h3 class="tile__name">Lattice</h3>
               <span class="tile__desc">A tiling window manager on real Spaces. No config file, no brew, 6 MB.</span>
               <span class="tile__meta"><span>Swift</span><span>2026</span></span>
-            </span>
+            </div>
           </a>
 
-          <article class="tile tile--ink">
+          <article class="tile tile--ink tile--internal">
             <svg class="tile__art" viewBox="0 0 400 500" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><g transform="translate(0,-30)">
               <rect x="50" y="110" width="300" height="200" rx="6" fill="none" stroke="#e8e5de" stroke-opacity=".5" stroke-width="2" />
               <path d="M50 140h300" stroke="#e8e5de" stroke-opacity=".3" />
@@ -329,12 +335,12 @@
               <path d="M178 314v80" stroke="#c92f1d" stroke-width="3" />
               <path d="M178 300l8 14h-16z" fill="#c92f1d" />
             </g></svg>
-            <span class="tile__no">06 / experiment</span>
-            <span class="tile__foot">
-              <span class="tile__name">Webcut</span>
+            <span class="tile__no">06 / experiment · unreleased</span>
+            <div class="tile__foot">
+              <h3 class="tile__name">Webcut</h3>
               <span class="tile__desc">The video is a website. Headless Chrome seeks it frame by frame into ffmpeg.</span>
               <span class="tile__meta"><span>TypeScript · ffmpeg</span><span>2026</span></span>
-            </span>
+            </div>
           </article>
         </div>
 
@@ -367,9 +373,9 @@
               display pipelines, capture and render loops.
             </p>
             <p>
-              I joined Clueso in February 2024 as an intern and stayed. Now I'm
-              one of the first engineers there — Chrome extension, video editor,
-              docs copilot, MCP server, and whatever the week needs.
+              At Clueso I've been on the video pipeline since February 2024:
+              capture, editor, docs, and the MCP server agents use to drive it.
+              Founding engineer, now on whatever the week needs.
             </p>
             <p>
               Side projects are mostly macOS utilities. They exist because
@@ -378,7 +384,7 @@
             </p>
             <p>
               Before that: a CHIP-8 emulator, a toy language, a typing test in
-              ncurses. The usual way of finding out how machines work.
+              ncurses. Usually the fastest way to find out how a system works.
             </p>
           </div>
 
@@ -425,12 +431,12 @@
           <a href="#main">back to start <sup>↑</sup></a>
         </div>
       </section>
-
-      <footer class="site-foot">
-        <span>© <span id="year">2026</span> Shashvat Singh · Bengaluru</span>
-        <span>handwritten · no template · no tracking</span>
-      </footer>
     </main>
+
+    <footer class="site-foot">
+      <span>© <span id="year">2026</span> Shashvat Singh · Bengaluru</span>
+      <span>handwritten · no template · no analytics</span>
+    </footer>
 
     <script src="script.js"></script>
     <script>

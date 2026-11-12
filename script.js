@@ -1,7 +1,8 @@
-/* Ruler scrubber + timecode. The ruler is navigation: its marks are
-   sections, its playhead tracks scroll position. */
+/* The ruler is navigation: marks are sections, the playhead is scroll
+   position, and every timecode on the page is derived from the same mapping. */
 
 (() => {
+  const header = document.querySelector(".site-head");
   const scrub = document.querySelector("[data-scrub]");
   const playhead = document.querySelector("[data-playhead]");
   const marks = document.querySelector("[data-marks]");
@@ -13,10 +14,10 @@
 
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+  // virtual tape length, purely for the timecode readout
+  const TAPE_SECONDS = 372;
   const pad = (n) => String(Math.floor(n)).padStart(2, "0");
 
-  // 6-minute virtual tape
-  const TAPE_SECONDS = 372;
   const formatTC = (progress) => {
     const total = progress * TAPE_SECONDS;
     const m = Math.floor(total / 60);
@@ -25,43 +26,65 @@
     return `${pad(m)}:${pad(s)}:${pad(f)}`;
   };
 
+  let offsets = new Map();
+  let totalScroll = 1;
+
+  const progressAt = (top) =>
+    Math.min(1, Math.max(0, top / totalScroll));
+
+  const scrollToOffset = (top) => {
+    window.scrollTo({
+      top: Math.max(0, top - header.offsetHeight),
+      behavior: reduced.matches ? "auto" : "smooth",
+    });
+  };
+
   const renderMarks = () => {
     marks.innerHTML = "";
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    if (docHeight <= 0) return;
-
     takes.forEach((section) => {
       if (section.dataset.take === "start") return;
-      const top = section.offsetTop;
-      const pct = Math.min(96, Math.max(4, (top / docHeight) * 100));
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = section.dataset.take;
-      btn.style.left = `${pct}%`;
-      btn.addEventListener("click", () => {
-        window.scrollTo({
-          top: Math.max(0, top - 64),
-          behavior: reduced.matches ? "auto" : "smooth",
-        });
-      });
+      btn.style.left = `${progressAt(offsets.get(section)) * 100}%`;
+      btn.addEventListener("click", () => scrollToOffset(offsets.get(section)));
       marks.appendChild(btn);
     });
+  };
+
+  const measure = () => {
+    totalScroll = Math.max(
+      1,
+      document.documentElement.scrollHeight - window.innerHeight
+    );
+    offsets = new Map(takes.map((section) => [section, section.offsetTop]));
+    renderMarks();
+    update();
   };
 
   let ticking = false;
   const update = () => {
     ticking = false;
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-    playhead.style.left = `${progress * 100}%`;
+    const progress = progressAt(window.scrollY);
+    const width = scrub.clientWidth;
+
+    playhead.style.transform = `translateX(${progress * width - 1}px)`;
+    header.style.setProperty("--progress", progress.toFixed(4));
 
     const tc = formatTC(progress);
     timecodeEls.forEach((el) => (el.textContent = tc));
 
-    // active nav
+    // section timecodes share the playhead's mapping
+    takes.forEach((section) => {
+      const el = section.querySelector(".tc");
+      if (el) el.textContent = formatTC(progressAt(offsets.get(section)));
+    });
+
     let current = null;
     for (const section of takes) {
-      if (window.scrollY + 120 >= section.offsetTop) current = section;
+      if (window.scrollY + header.offsetHeight + 56 >= offsets.get(section)) {
+        current = section;
+      }
     }
     navLinks.forEach((a) => {
       const target = document.querySelector(a.getAttribute("href"));
@@ -77,17 +100,13 @@
   };
 
   window.addEventListener("scroll", requestUpdate, { passive: true });
-  window.addEventListener("resize", () => {
-    renderMarks();
-    requestUpdate();
-  });
+  window.addEventListener("resize", requestUpdate);
 
-  // click / drag anywhere on the ruler to scrub
+  // click or drag anywhere on the ruler to scrub
   const scrubTo = (clientX) => {
     const rect = scrub.getBoundingClientRect();
     const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    window.scrollTo({ top: pct * max, behavior: "auto" });
+    window.scrollTo({ top: pct * totalScroll, behavior: "auto" });
   };
 
   let dragging = false;
@@ -98,15 +117,18 @@
     scrubTo(e.clientX);
   });
   scrub.addEventListener("pointermove", (e) => {
-    if (dragging) scrubTo(e.clientX);
+    if (dragging && e.buttons === 1) scrubTo(e.clientX);
   });
-  scrub.addEventListener("pointerup", () => (dragging = false));
-  scrub.addEventListener("pointercancel", () => (dragging = false));
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach((type) =>
+    scrub.addEventListener(type, () => (dragging = false))
+  );
 
-  renderMarks();
-  update();
-  window.addEventListener("load", () => {
-    renderMarks();
-    requestUpdate();
-  });
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(() => measure()).observe(document.body);
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(measure);
+  }
+  window.addEventListener("load", measure);
+  measure();
 })();

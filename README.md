@@ -2,7 +2,7 @@
 
 A single-page portfolio built like a capture session: the header ruler is both
 navigation and scroll progress, sections are takes, and timecode runs
-underneath it all. No framework, no build step, no tracking.
+underneath it all. No framework, no build step, no analytics.
 
 ```
 index.html    markup, content, inline SVG poster art
@@ -28,9 +28,10 @@ the default branch.
 repo but the domain no longer resolves. Reviving it would give this site the
 clean URL his old portfolio had — DNS plus one deploy, no content changes.
 
-Before deploying to a real domain, make the social card absolute:
-`og:image` and `twitter:image` should become
-`https://<domain>/assets/og.png`.
+The social card (`og:image`, `twitter:image`), `og:url` and canonical link
+point at `https://shashvat1965.github.io/shashvat-portfolio/`. If you deploy
+under a different repo name or a custom domain, update those four URLs in
+`index.html`.
 
 ## Editing
 
