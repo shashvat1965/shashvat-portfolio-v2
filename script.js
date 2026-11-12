@@ -474,13 +474,13 @@
     });
   };
 
-  const nearest = () => {
+  const nearest = (px, py) => {
     const out = [];
     items.forEach((it, i) => {
       const cx = it.x + it.w / 2 + cam.x;
       const cy = it.y + it.h / 2 + cam.y;
-      const dx = pointer.x - cx;
-      const dy = pointer.y - cy;
+      const dx = px - cx;
+      const dy = py - cy;
       out.push({ i, d: Math.hypot(dx, dy), cx, cy });
     });
     out.sort((a, b) => a.d - b.d);
@@ -590,7 +590,10 @@
     world.style.transform = `translate3d(${cam.x.toFixed(2)}px, ${cam.y.toFixed(2)}px, 0)`;
 
     if (pointer.seen && pointer.inCanvas && window.scrollY < board.offsetHeight * 0.6) {
-      near = nearest();
+      const boardRect = board.getBoundingClientRect();
+      const px = pointer.x - boardRect.left;
+      const py = pointer.y - boardRect.top;
+      near = nearest(px, py);
       setNear(near);
 
       items.forEach((it) => it._fig.classList.remove("is-blob"));
@@ -599,16 +602,16 @@
       items.forEach((it, i) => {
         const left = it.x + cam.x;
         const top = it.y + cam.y;
-        const dx = Math.max(left - pointer.x, 0, pointer.x - (left + it.w));
-        const dy = Math.max(top - pointer.y, 0, pointer.y - (top + it.h));
+        const dx = Math.max(left - px, 0, px - (left + it.w));
+        const dy = Math.max(top - py, 0, py - (top + it.h));
         const dist = Math.hypot(dx, dy);
         if (dist < 360) targets.push({ it, i, left, top, dist });
       });
       targets.sort((a, b) => a.dist - b.dist);
       targets.slice(0, 5).forEach(({ it, i, left, top, dist }) => {
         ensureNeg(it, i);
-        const lx = pointer.x - left;
-        const ly = pointer.y - top;
+        const lx = px - left;
+        const ly = py - top;
         const R =
           Math.min(it.w, it.h) *
           0.46 *
@@ -628,8 +631,8 @@
       }));
       leaders.forEach(({ line, t, oy }) => {
         if (dot[t]) {
-          line.setAttribute("x1", pointer.x);
-          line.setAttribute("y1", pointer.y);
+          line.setAttribute("x1", px);
+          line.setAttribute("y1", py);
           line.setAttribute("x2", dot[t].x);
           line.setAttribute("y2", dot[t].y + oy);
           line.style.display = "";
@@ -659,10 +662,10 @@
       });
       if (leaderDist) {
         if (dot[0]) {
-          const d = Math.hypot(dot[0].x - pointer.x, dot[0].y - pointer.y) / 100;
+          const d = Math.hypot(dot[0].x - px, dot[0].y - py) / 100;
           leaderDist.textContent = d.toFixed(2);
-          leaderDist.setAttribute("x", (pointer.x + dot[0].x) / 2 + 6);
-          leaderDist.setAttribute("y", (pointer.y + dot[0].y) / 2 - 6);
+          leaderDist.setAttribute("x", (px + dot[0].x) / 2 + 6);
+          leaderDist.setAttribute("y", (py + dot[0].y) / 2 - 6);
           leaderDist.style.display = "";
         } else leaderDist.style.display = "none";
       }
@@ -683,6 +686,12 @@
   const hideOnScroll = () => {
     if (!cross) return;
     if (window.scrollY > board.offsetHeight * 0.6) cross.classList.remove("is-on");
+    if (pointer.seen) {
+      const hit = document.elementFromPoint(pointer.x, pointer.y);
+      const onBoard = !!(hit && hit.closest && hit.closest(".board"));
+      const onChrome = !!(hit && hit.closest && hit.closest(".hud, .status"));
+      pointer.inCanvas = onBoard && !onChrome;
+    }
   };
 
   build();
